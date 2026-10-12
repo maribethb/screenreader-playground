@@ -1,0 +1,31 @@
+/* Deliberately plain. The repros are the interesting part. */
+
+body {
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  max-width: 50rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+pre {
+  /* Wrap instead of scrolling, so code blocks don't need to be focusable. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  padding: 0.75rem;
+}
+
+code {
+  font-family: ui-monospace, monospace;
+}
+
+[aria-current] {
+  font-weight: bold;
+}
+
+#repro {
+  border: 2px dashed #666;
+  padding: 1rem;
+}

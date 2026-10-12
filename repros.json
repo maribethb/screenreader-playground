@@ -1,0 +1,93 @@
+[
+  {
+    "slug": "live-region-assertive",
+    "title": "Assertive live region announcements are ignored",
+    "category": "ARIA spec issues",
+    "affects": ["TBD"],
+    "status": "todo"
+  },
+  {
+    "slug": "live-region-announcements",
+    "title": "Repeated and overlapping live region announcements",
+    "category": "ARIA spec issues",
+    "affects": ["TBD"],
+    "status": "draft"
+  },
+  {
+    "slug": "headings-in-lists",
+    "title": "Headings inside list items",
+    "category": "ARIA spec issues",
+    "affects": ["TBD"],
+    "status": "todo"
+  },
+  {
+    "slug": "lifecycle-timing",
+    "title": "tabindex and aria-* changes depend on rendering lifecycle timing",
+    "category": "ARIA spec issues",
+    "affects": ["TBD"],
+    "status": "todo"
+  },
+  {
+    "slug": "voiceover-group",
+    "title": "VoiceOver says \"group\" a lot",
+    "category": "VoiceOver",
+    "affects": ["VoiceOver"],
+    "status": "todo"
+  },
+  {
+    "slug": "voiceover-treeitem",
+    "title": "VoiceOver and Safari problems with role=\"treeitem\"",
+    "category": "VoiceOver",
+    "affects": ["VoiceOver with Safari"],
+    "status": "todo"
+  },
+  {
+    "slug": "voiceover-region-announcements",
+    "title": "Unexpected region announcements in VoiceOver",
+    "category": "VoiceOver",
+    "affects": ["VoiceOver"],
+    "status": "todo"
+  },
+  {
+    "slug": "safari-moved-element-focus",
+    "title": "Safari loses focus when a focused element is moved",
+    "category": "VoiceOver",
+    "affects": ["VoiceOver with Safari"],
+    "status": "todo"
+  },
+  {
+    "slug": "safari-region-label-child-focused",
+    "title": "Safari skips the region label when a child was already focused",
+    "category": "VoiceOver",
+    "affects": ["VoiceOver with Safari"],
+    "status": "todo"
+  },
+  {
+    "slug": "chromevox-region-announcements",
+    "title": "ChromeVox is inconsistent about region announcements",
+    "category": "ChromeVox",
+    "affects": ["ChromeVox"],
+    "status": "todo"
+  },
+  {
+    "slug": "chromevox-repeated-reads",
+    "title": "ChromeVox reads the same focused node more than once",
+    "category": "ChromeVox",
+    "affects": ["ChromeVox"],
+    "status": "todo"
+  },
+  {
+    "slug": "jaws-application-combobox",
+    "title": "JAWS reads combobox hints inside role=\"application\"",
+    "category": "JAWS",
+    "affects": ["JAWS"],
+    "status": "todo"
+  },
+  {
+    "slug": "focusout-on-removal",
+    "title": "focusout when a focused element is removed",
+    "category": "Focus problems",
+    "affects": ["TBD"],
+    "status": "todo"
+  }
+]

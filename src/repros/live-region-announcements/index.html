@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repeated and overlapping live region announcements - Screenreader playground</title>
+  <link rel="stylesheet" href="../../shared/page.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <p><a href="../../">All repros</a></p>
+  <h1>Repeated and overlapping live region announcements</h1>
+
+  <h2>Affected</h2>
+  <!-- build:affects -->
+
+  <h2>Steps to reproduce</h2>
+  <ol>
+    <li>Jump to the "Repro" heading.</li>
+    <li>Move to the "Add block" button.</li>
+    <li>Press the button three times in quick succession.</li>
+  </ol>
+
+  <h2>Expected output</h2>
+  <p>
+    The ARIA spec doesn't say what should happen when a live region is set to
+    the same text twice, so this is what would be reasonable rather than what
+    the spec requires: "Block added" is announced once per press.
+  </p>
+
+  <h2>Actual output</h2>
+  <p>
+    "Block added" is announced once, after the first press. Later presses set
+    the same text, which isn't a change, so nothing is announced.
+  </p>
+
+  <h2>Variants</h2>
+  <ul>
+    <li>
+      <a href="?variant=naive">naive</a>: sets the live region's text on every
+      press. This is the broken version.
+    </li>
+    <li>
+      <a href="?variant=debounce">debounce</a>: clears the region on every
+      press, then sets the text once presses stop.
+    </li>
+    <li>
+      <a href="?variant=queue">queue</a>: queues every message and announces
+      them one at a time, clearing the region in between.
+    </li>
+  </ul>
+
+  <!-- build:code -->
+
+  <h2>Repro</h2>
+  <div id="repro"><!-- build:repro --></div>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>
+      This is a placeholder repro, written to try out the site's structure.
+      The steps, outputs and variants haven't been checked against a real
+      screenreader or against the Blockly workaround history.
+    </li>
+    <li>
+      None of the variants stop announcements from overlapping with the
+      screenreader's own output, like reading the newly focused element. That
+      might end up as its own repro.
+    </li>
+  </ul>
+
+  <!-- build:templates -->
+</body>
+</html>

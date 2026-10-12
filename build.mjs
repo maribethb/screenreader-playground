@@ -168,7 +168,7 @@ if (process.argv.includes('--watch')) {
   const ctx = await esbuild.context(esbuildOptions);
   // Claim the port before touching dist/, so a second dev server fails
   // without wiping the first one's output.
-  const {port} = await ctx.serve({servedir: OUT, port: 8000});
+  const {port} = await ctx.serve({servedir: OUT, port: Number(process.env.PORT) || 8000});
   fs.rmSync(OUT, {recursive: true, force: true});
   buildPages();
   await ctx.watch();

@@ -178,7 +178,7 @@ None of the entries below are specs. They're a record of what we know right now,
 At least one user agent refused to read assertive announcements, so we had to use `aria-live="polite"` even though assertive seemed more correct per the spec.
 
 - Variants: `assertive` (broken), `polite` (our workaround).
-- Needs investigation: which user agent it was.
+- It was VoiceOver on macOS, according to micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460). The assertive announcement was lost when focus moved at the same time, so the repro moves focus too. The repro page has the rest of the evidence.
 
 #### `live-region-announcements`
 

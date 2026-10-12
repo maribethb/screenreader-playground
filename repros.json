@@ -3,8 +3,8 @@
     "slug": "live-region-assertive",
     "title": "Assertive live region announcements are ignored",
     "category": "ARIA spec issues",
-    "affects": ["TBD"],
-    "status": "todo"
+    "affects": ["VoiceOver on macOS, probably with any browser"],
+    "status": "draft"
   },
   {
     "slug": "live-region-announcements",

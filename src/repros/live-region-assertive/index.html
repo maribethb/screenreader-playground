@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assertive live region announcements are ignored - Screenreader playground</title>
+  <link rel="stylesheet" href="../../shared/page.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <p><a href="../../">All repros</a></p>
+  <h1>Assertive live region announcements are ignored</h1>
+
+  <h2>Affected</h2>
+  <!-- build:affects -->
+  <p>
+    This is our best guess and nobody has confirmed it with this page yet.
+    Blockly's own testing found the bug in VoiceOver on macOS, but didn't
+    record the browser. A WebKit bug reports VoiceOver on macOS skipping live
+    region messages sent during a focus change in Safari, Chrome and Firefox,
+    and Apple moved it to VoiceOver, so it's probably not browser-specific.
+    The same Blockly testing found that ChromeVox, NVDA and JAWS all read the
+    assertive announcement, so we expect those to work. Testing VoiceOver with
+    both Safari and Chrome would tell us whether the browser matters.
+  </p>
+
+  <h2>Steps to reproduce</h2>
+  <p>
+    Reload the page between variants, so nothing is left in the screenreader's
+    speech queue.
+  </p>
+  <ol>
+    <li>Jump to the "Repro" heading.</li>
+    <li>
+      Move to the "Announce only" button and press it. This is the control:
+      the live region changes and nothing else happens.
+    </li>
+    <li>
+      Move to the "Insert block" button and press it. Focus moves to a new
+      block, and the live region changes at the same time.
+    </li>
+    <li>Repeat both steps with the other variant.</li>
+  </ol>
+
+  <h2>Expected output</h2>
+  <p>
+    The <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-live">ARIA spec</a>
+    says assertive updates should be presented immediately, and that a
+    screenreader may clear its queue of pending speech to do it. Polite
+    updates wait for the next graceful opportunity. So this is what the spec
+    asks for:
+  </p>
+  <ul>
+    <li>"Announce only" reads "Announcement 1" in both variants.</li>
+    <li>
+      "Insert block" in the assertive variant reads "Moving block 2. Use the
+      arrow keys to move it." It may cut off the new block's name, or be
+      followed by it.
+    </li>
+    <li>
+      "Insert block" in the polite variant reads the new block's name, then
+      "Moving block 2. Use the arrow keys to move it."
+    </li>
+  </ul>
+
+  <h2>Actual output</h2>
+  <p>
+    Not confirmed with this page yet. In Blockly, with VoiceOver on macOS,
+    inserting a block from the toolbox moved focus to the new block and
+    announced move mode in an assertive live region. VoiceOver read the block
+    and never read the announcement. With the region set to polite, it read
+    the block and then the announcement. So we expect:
+  </p>
+  <ul>
+    <li>"Announce only" works in both variants.</li>
+    <li>
+      "Insert block" in the assertive variant reads the new block's name and
+      nothing else.
+    </li>
+    <li>"Insert block" in the polite variant works.</li>
+  </ul>
+
+  <h2>Variants</h2>
+  <ul>
+    <li>
+      <a href="?variant=assertive">assertive</a>: the live region has
+      <code>aria-live="assertive"</code>. This is the broken version.
+    </li>
+    <li>
+      <a href="?variant=polite">polite</a>: the same, with
+      <code>aria-live="polite"</code>. This is our workaround.
+    </li>
+  </ul>
+
+  <!-- build:code -->
+
+  <h2>Repro</h2>
+  <div id="repro"><!-- build:repro --></div>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>
+      The title says "ignored", but probably that's not quite what happens.
+      One guess from the Blockly testing was that VoiceOver starts reading the
+      assertive message and the focus readout immediately cuts it off. The
+      "Announce only" button is there to tell those apart: if it works and
+      "Insert block" doesn't, assertive regions aren't ignored outright, they
+      just lose to focus changes.
+    </li>
+    <li>
+      Some screenreaders have a milder version of this: they treat assertive
+      as polite, so the message is read late rather than not at all.
+      a11ysupport.io's test data records this for JAWS, Orca and TalkBack.
+      This page won't show it, because there's nothing else queued for the
+      assertive message to jump ahead of.
+    </li>
+    <li>
+      NVDA probably isn't affected, but it isn't a sure thing. An old NVDA
+      issue reports a <code>role="alert"</code> message being lost when focus
+      moved to a heading, and an NVDA developer explained that a focus change
+      starts speech from a clean slate. Our own Blockly testing didn't see
+      this with NVDA.
+    </li>
+    <li>
+      The repro moves focus first and then sets the live region's text. We
+      don't know which order Blockly used. If this doesn't reproduce, it's
+      worth trying the other order before deciding the bug is gone.
+    </li>
+    <li>
+      At the time of the testing, Blockly's live region was an offscreen
+      <code>&lt;span aria-live="assertive"&gt;</code> that was always
+      assertive. The region in the repro is visible, so sighted testers can see
+      what should have been said. Today Blockly uses one polite
+      <code>role="status"</code> region and switches its
+      <code>aria-live</code> to assertive just before an assertive message,
+      which is a different setup we haven't tested.
+    </li>
+    <li>
+      Every message is numbered, so it never repeats. Repeated messages are a
+      separate problem with its own repro.
+    </li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9460">Blockly
+      issue 9460</a> (November 2025): micro:bit's review of Blockly's live
+      region announcements in VoiceOver, NVDA, JAWS and ChromeVox. This is
+      where the VoiceOver result comes from.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9632">Blockly
+      issue 9632</a>: the follow-up that made polite the default, because
+      "some platforms wouldn't read assertive announcements at all".
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9436">Blockly
+      pull request 9436</a>: the change that made the region assertive in the
+      first place.
+    </li>
+    <li>
+      <a href="https://bugs.webkit.org/show_bug.cgi?id=222190">WebKit bug
+      222190</a> (filed February 2021): VoiceOver on macOS skips live region
+      messages during focus changes in Safari, Chrome and Firefox. Apple moved
+      it to VoiceOver, and it still reproduced on macOS 13.1 beta in November
+      2022.
+    </li>
+    <li>
+      <a href="https://github.com/accessibilitysupported/a11ysupport.io/blob/master/data/tests/tech/aria/aria-live.json">a11ysupport.io
+      aria-live test data</a> (tested November 2022): JAWS, Orca and TalkBack
+      treat assertive as polite. VoiceOver on iOS lets an assertive message
+      drop a queued polite one.
+    </li>
+    <li>
+      <a href="https://github.com/nvaccess/nvda/issues/11299">NVDA issue
+      11299</a> (2020, NVDA 2019.3 with Firefox): <code>role="alert"</code>
+      not announced when focus moves at the same time.
+    </li>
+    <li>
+      <a href="https://github.com/FreedomScientific/standards-support/issues/919">JAWS
+      standards-support issue 919</a> (September 2025): JAWS 2025 reads the
+      newly focused field before an assertive message, where JAWS 2024 read
+      the message first. Vispero confirmed it as a bug. The message is still
+      read, just late.
+    </li>
+    <li>
+      <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-live">WAI-ARIA 1.2,
+      aria-live</a>: what assertive and polite are supposed to do.
+    </li>
+  </ul>
+
+  <!-- build:templates -->
+</body>
+</html>

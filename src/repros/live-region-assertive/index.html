@@ -16,12 +16,12 @@
   <p>
     This is our best guess and nobody has confirmed it with this page yet.
     Blockly's own testing found the bug in VoiceOver on macOS, but didn't
-    record the browser. A WebKit bug reports VoiceOver on macOS skipping live
-    region messages sent during a focus change in Safari, Chrome and Firefox,
-    and Apple moved it to VoiceOver, so it's probably not browser-specific.
-    The same Blockly testing found that ChromeVox, NVDA and JAWS all read the
-    assertive announcement, so we expect those to work. Testing VoiceOver with
-    both Safari and Chrome would tell us whether the browser matters.
+    record the browser. That testing also found that ChromeVox, NVDA and JAWS
+    all read the assertive announcements, so we expect those to work. A WebKit
+    bug reports VoiceOver on macOS skipping live region messages during focus
+    changes in Safari, Chrome and Firefox, which suggests the browser doesn't
+    matter, but it doesn't say whether the region was polite or assertive.
+    Testing VoiceOver with both Safari and Chrome would settle it.
   </p>
 
   <h2>Steps to reproduce</h2>
@@ -36,48 +36,56 @@
       the live region changes and nothing else happens.
     </li>
     <li>
-      Move to the "Insert block" button and press it. Focus moves to a new
-      block, and the live region changes at the same time.
+      Move to the "Insert block" button and press it. The live region changes,
+      then focus moves to the new block.
     </li>
-    <li>Repeat both steps with the other variant.</li>
+    <li>
+      Move back to "Insert block", then forward to the new block. While the
+      block's name is still being read, press the block once. The live region
+      changes and focus stays where it is.
+    </li>
+    <li>Repeat all of this with the other variant.</li>
   </ol>
 
   <h2>Expected output</h2>
   <p>
     The <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-live">ARIA spec</a>
-    says assertive updates should be presented immediately, and that a
-    screenreader may clear its queue of pending speech to do it. Polite
-    updates wait for the next graceful opportunity. So this is what the spec
-    asks for:
+    says assistive technologies should present assertive updates immediately,
+    and polite ones at the next graceful opportunity. It calls this a strong
+    suggestion rather than a requirement, and it doesn't say anything about
+    how live regions should fit around the screenreader reading the focused
+    element. So this is what would be reasonable, not what the spec requires:
   </p>
   <ul>
     <li>"Announce only" reads "Announcement 1" in both variants.</li>
     <li>
-      "Insert block" in the assertive variant reads "Moving block 2. Use the
-      arrow keys to move it." It may cut off the new block's name, or be
-      followed by it.
+      "Insert block" reads "Inserted block 2. Use the arrow keys to move it."
+      and the new block's name. In the assertive variant the message may come
+      first. In the polite variant it comes after the name.
     </li>
     <li>
-      "Insert block" in the polite variant reads the new block's name, then
-      "Moving block 2. Use the arrow keys to move it."
+      Pressing the block reads "Moving block 2. Use the arrow keys to move
+      it." In the assertive variant it cuts off the block's name. In the
+      polite variant it may wait for the name to finish.
     </li>
   </ul>
 
   <h2>Actual output</h2>
   <p>
-    Not confirmed with this page yet. In Blockly, with VoiceOver on macOS,
-    inserting a block from the toolbox moved focus to the new block and
-    announced move mode in an assertive live region. VoiceOver read the block
-    and never read the announcement. With the region set to polite, it read
-    the block and then the announcement. So we expect:
+    Not confirmed with this page yet. In Blockly, with VoiceOver on macOS and
+    an assertive live region, the move mode announcement was lost in two
+    places: when inserting a block from the toolbox moved focus to the new
+    block, and when a move was started while the block's name was still being
+    read. With the region set to polite, both announcements were read after
+    the block's name. So we expect, with VoiceOver:
   </p>
   <ul>
     <li>"Announce only" works in both variants.</li>
     <li>
-      "Insert block" in the assertive variant reads the new block's name and
-      nothing else.
+      In the assertive variant, "Insert block" and pressing the block both
+      read the block's name and nothing else.
     </li>
-    <li>"Insert block" in the polite variant works.</li>
+    <li>In the polite variant, both work.</li>
   </ul>
 
   <h2>Variants</h2>
@@ -102,29 +110,30 @@
     <li>
       The title says "ignored", but probably that's not quite what happens.
       One guess from the Blockly testing was that VoiceOver starts reading the
-      assertive message and the focus readout immediately cuts it off. The
-      "Announce only" button is there to tell those apart: if it works and
-      "Insert block" doesn't, assertive regions aren't ignored outright, they
-      just lose to focus changes.
+      assertive message and the block's name immediately cuts it off. If
+      "Announce only" works and the other two don't, assertive regions aren't
+      ignored outright, they just lose to whatever else the screenreader is
+      saying.
+    </li>
+    <li>
+      The order matches Blockly. Starting a move set the live region's text,
+      and only then moved focus to the block. If this doesn't reproduce, it's
+      worth trying the other order before deciding the bug is gone.
     </li>
     <li>
       Some screenreaders have a milder version of this: they treat assertive
       as polite, so the message is read late rather than not at all.
-      a11ysupport.io's test data records this for JAWS, Orca and TalkBack.
-      This page won't show it, because there's nothing else queued for the
-      assertive message to jump ahead of.
+      a11ysupport.io's test data marks JAWS and Orca as doing this, and
+      TalkBack's output in the same test looks the same. This page won't show
+      it, because there's never a polite message queued for the assertive one
+      to jump ahead of.
     </li>
     <li>
       NVDA probably isn't affected, but it isn't a sure thing. An old NVDA
       issue reports a <code>role="alert"</code> message being lost when focus
-      moved to a heading, and an NVDA developer explained that a focus change
-      starts speech from a clean slate. Our own Blockly testing didn't see
-      this with NVDA.
-    </li>
-    <li>
-      The repro moves focus first and then sets the live region's text. We
-      don't know which order Blockly used. If this doesn't reproduce, it's
-      worth trying the other order before deciding the bug is gone.
+      moved to a heading, though not when it moved to a button. An NVDA
+      developer explained that a focus change starts speech from a clean
+      slate. Our own Blockly testing didn't see this with NVDA.
     </li>
     <li>
       At the time of the testing, Blockly's live region was an offscreen
@@ -136,8 +145,9 @@
       which is a different setup we haven't tested.
     </li>
     <li>
-      Every message is numbered, so it never repeats. Repeated messages are a
-      separate problem with its own repro.
+      Pressing the same block twice repeats its message, which some
+      screenreaders skip. That's a separate problem with its own repro, so
+      press each block once.
     </li>
   </ul>
 
@@ -151,13 +161,20 @@
     </li>
     <li>
       <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9632">Blockly
-      issue 9632</a>: the follow-up that made polite the default, because
-      "some platforms wouldn't read assertive announcements at all".
+      issue 9632</a>: the follow-up asking for polite to be the default,
+      because "some platforms wouldn't read assertive announcements at all".
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9653">Pull
+      request 9653</a> did it.
     </li>
     <li>
       <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9436">Blockly
       pull request 9436</a>: the change that made the region assertive in the
       first place.
+    </li>
+    <li>
+      <a href="https://github.com/google/blockly-keyboard-experimentation/blob/main/src/actions/mover.ts">blockly-keyboard-experimentation's
+      <code>mover.ts</code></a>: <code>startMove</code> starts the drag, which
+      sets the live region's text, before it moves focus to the block.
     </li>
     <li>
       <a href="https://bugs.webkit.org/show_bug.cgi?id=222190">WebKit bug
@@ -168,14 +185,15 @@
     </li>
     <li>
       <a href="https://github.com/accessibilitysupported/a11ysupport.io/blob/master/data/tests/tech/aria/aria-live.json">a11ysupport.io
-      aria-live test data</a> (tested November 2022): JAWS, Orca and TalkBack
-      treat assertive as polite. VoiceOver on iOS lets an assertive message
-      drop a queued polite one.
+      aria-live test data</a> (tested November 2022): JAWS and Orca are marked
+      as treating assertive as polite. VoiceOver on iOS lets an assertive
+      message drop a queued polite one.
     </li>
     <li>
       <a href="https://github.com/nvaccess/nvda/issues/11299">NVDA issue
-      11299</a> (2020, NVDA 2019.3 with Firefox): <code>role="alert"</code>
-      not announced when focus moves at the same time.
+      11299</a> (2020, NVDA 2019.3 with Firefox): a <code>role="alert"</code>
+      message lost when focus moved to a heading. It was closed in 2026
+      without a matching test case.
     </li>
     <li>
       <a href="https://github.com/FreedomScientific/standards-support/issues/919">JAWS

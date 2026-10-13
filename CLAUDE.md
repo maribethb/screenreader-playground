@@ -9,6 +9,10 @@ Minimal reproductions of screenreader problems we ran into while making Blockly 
 - Use generic web concepts in the code, steps and expected output: "move element", "add item", a plain `<div>` or `<ul>`. Not "move block", "insert block from the toolbox" or a "workspace". A reader who's never used Blockly should be able to follow the repro. Blockly can come up in the prose around it, like the "Actual output" and notes sections. See [Generic examples](docs/design.md#generic-examples-not-blockly-ones).
 - Don't use landmarks or live regions in the page chrome. Several repros are about them.
 
+## Git
+
+This repo has no remote. "Merge to main" means merging into the local `main` branch, and there's nothing to push to, so don't offer to push or open a PR.
+
 ## Researching where an issue came from
 
 Most repros start with figuring out what the bug actually was in Blockly, and it's easy to look in the wrong place.

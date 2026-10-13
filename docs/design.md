@@ -26,7 +26,7 @@ The site is deliberately boring. There's no storytelling on the repro pages and 
 ## Non-goals
 
 - Explaining the issues in depth. That's the article's job.
-- Using real Blockly code. Repros are minimal hand-written markup only.
+- Using real Blockly code, or Blockly's vocabulary. Repros are minimal hand-written markup, and they talk about elements and items rather than blocks and workspaces. See [Generic examples](#generic-examples-not-blockly-ones).
 - Automated testing of screenreader output. See the rejected options below.
 - Upstream bug links and exact tested versions. We'll want these eventually, but some of these bugs probably don't have an upstream report at all, and that's a separate refinement pass.
 - Pinning down every detail of every repro in this doc. Several entries below are mostly "needs investigation", and that's fine. Each one will get its own focused pass later.
@@ -59,7 +59,7 @@ This matters more than it might seem, because a big part of the argument is how 
 <ul>
   <li>
     <h3>Loops</h3>
-    <p>Repeat a set of blocks.</p>
+    <p>Repeat a set of steps.</p>
   </li>
   <li>
     <h3>Logic</h3>
@@ -78,6 +78,16 @@ So the code we show has to be the minimal reproduction and nothing else. That ha
 - No syntax highlighting, at least to start with. It'd be nice to have, but it's a fancy UI feature and the code blocks are short. If we want it later, it should happen at build time so the page doesn't render anything with script.
 
 For variants that are workarounds, the code block is where the reader sees how much more code it took. The `live-region-announcements` repro going from a one-line `textContent` assignment to a whole message queue makes the case better than any sentence in the article could.
+
+### Generic examples, not Blockly ones
+
+Dropping Blockly's code isn't enough on its own, because it's easy to keep Blockly's vocabulary. A repro with an "Insert block" button that adds a block to a `<div class="workspace">` is still asking the reader to know what a block and a workspace are, and why you'd put one in the other. Most readers of the article have never used Blockly, and none of the bugs on our list depend on anything Blockly-specific. The extra concepts are just more to read before you get to the one line that matters.
+
+So the code, the steps and the expected output should use plain web concepts: elements, items, buttons, lists. "Move element" rather than "move block", "Add item" rather than "insert block from the toolbox", a plain `<div>` or `<ul>` rather than a "workspace". The test is whether a web developer who's never heard of Blockly could read the code block and know what each piece is for.
+
+Blockly can still show up in the prose around the repro. The "Actual output" section and the notes are where we say what we saw in Blockly and how it got there, and that history is part of the evidence. It just shouldn't leak into the repro itself.
+
+`live-region-assertive` was written before we settled on this, and its code and steps still talk about blocks and a workspace. It'll get cleaned up in a separate pass.
 
 ## What a repro page looks like
 

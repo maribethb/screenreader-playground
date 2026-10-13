@@ -1,7 +1,10 @@
 // Builds the site into dist/.
 //
 //   node build.mjs            one-off build
-//   node build.mjs --watch    rebuild on change and serve dist/ on port 8000
+//   node build.mjs --watch    rebuild on change and serve dist/
+//
+// The dev server uses $PORT if it's set. Otherwise esbuild picks a free port,
+// preferring 8000-8009, so several checkouts can serve at once.
 //
 // esbuild bundles each repro's main.ts. Everything else is string replacement
 // on the HTML: each repro's index.html has placeholder comments that get
@@ -166,9 +169,12 @@ const esbuildOptions = {
 
 if (process.argv.includes('--watch')) {
   const ctx = await esbuild.context(esbuildOptions);
-  // Claim the port before touching dist/, so a second dev server fails
-  // without wiping the first one's output.
-  const {port} = await ctx.serve({servedir: OUT, port: 8000});
+  // Claim the port before touching dist/, so a dev server that can't get
+  // the $PORT it was asked for fails without wiping dist/.
+  const {port} = await ctx.serve({
+    servedir: OUT,
+    port: process.env.PORT ? Number(process.env.PORT) : undefined,
+  });
   fs.rmSync(OUT, {recursive: true, force: true});
   buildPages();
   await ctx.watch();

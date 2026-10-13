@@ -10,8 +10,8 @@
     "slug": "live-region-announcements",
     "title": "Repeated and overlapping live region announcements",
     "category": "ARIA spec issues",
-    "affects": ["TBD"],
-    "status": "draft"
+    "affects": ["NVDA", "JAWS", "VoiceOver"],
+    "status": "verified"
   },
   {
     "slug": "headings-in-lists",

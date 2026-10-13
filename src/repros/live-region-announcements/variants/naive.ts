@@ -1,8 +1,22 @@
 export function setup(container: HTMLElement) {
-  const button = container.querySelector('button')!;
+  const [addButton, addWithTipButton] = container.querySelectorAll('button');
+  const list = container.querySelector('ul')!;
   const status = container.querySelector('[aria-live]')!;
 
-  button.addEventListener('click', () => {
-    status.textContent = 'Block added';
+  function announce(message: string) {
+    status.textContent = message;
+  }
+
+  function addItem() {
+    const item = document.createElement('li');
+    item.textContent = `Item ${list.children.length + 1}`;
+    list.append(item);
+    announce('Item added.');
+  }
+
+  addButton.addEventListener('click', addItem);
+  addWithTipButton.addEventListener('click', () => {
+    addItem();
+    announce('Tip: new items go at the end of the list.');
   });
 }

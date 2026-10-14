@@ -11,6 +11,14 @@
   <p><a href="../../">All repros</a></p>
   <h1>Assertive live region announcements are ignored</h1>
 
+  <p>
+    This page is kept as historical context. The bug it was chasing turned
+    out to be VoiceOver with Chrome losing live region messages set at the
+    same time as a focus change, assertive or polite. That has its own page:
+    <a href="../live-region-during-focus-change/">Live region messages set
+    while moving focus aren't read</a>.
+  </p>
+
   <h2>Affected</h2>
   <!-- build:affects -->
   <p>
@@ -32,17 +40,17 @@
   <ol>
     <li>Jump to the "Repro" heading.</li>
     <li>
-      Move to the "Announce only" button and press it. This is the control:
-      the live region changes and nothing else happens.
+      Move to the "Show shapes" button and press it. Three shapes appear, and
+      focus moves to the first one.
     </li>
     <li>
-      Move to the "Insert block" button and press it. The live region changes,
-      then focus moves to the new block.
+      Press Enter on a shape. A copy of it is added to the canvas, the shapes
+      are hidden, focus moves to the copy, and then the live region changes.
+      VO-Space works too.
     </li>
     <li>
-      Move back to "Insert block", then forward to the new block. While the
-      block's name is still being read, press the block once. The live region
-      changes and focus stays where it is.
+      Press "Show shapes" and add a copy two or three more times, waiting for
+      the screenreader to stop talking each time.
     </li>
     <li>Repeat all of this with the other variant.</li>
   </ol>
@@ -55,37 +63,22 @@
     suggestion rather than a requirement, and it doesn't say anything about
     how live regions should fit around the screenreader reading the focused
     element. So this is what would be reasonable, not what the spec requires:
+    adding a copy reads its name, like "Red square 1, shape", and "Moving Red
+    square 1". In the assertive variant the message may cut off the name. In
+    the polite variant it comes after the name.
   </p>
-  <ul>
-    <li>"Announce only" reads "Announcement 1" in both variants.</li>
-    <li>
-      "Insert block" reads "Inserted block 2. Use the arrow keys to move it."
-      and the new block's name. In the assertive variant the message may come
-      first. In the polite variant it comes after the name.
-    </li>
-    <li>
-      Pressing the block reads "Moving block 2. Use the arrow keys to move
-      it." In the assertive variant it cuts off the block's name. In the
-      polite variant it may wait for the name to finish.
-    </li>
-  </ul>
 
   <h2>Actual output</h2>
   <p>
     Not confirmed with this page yet. In Blockly, with VoiceOver on macOS and
-    an assertive live region, the move mode announcement was lost in two
-    places: when inserting a block from the toolbox moved focus to the new
-    block, and when a move was started while the block's name was still being
-    read. With the region set to polite, both announcements were read after
-    the block's name. So we expect, with VoiceOver:
+    an assertive live region, inserting a block from the toolbox read the new
+    block's name and never the move announcement. With the region set to
+    polite, the announcement was read after the name. So we expect, with
+    VoiceOver:
   </p>
   <ul>
-    <li>"Announce only" works in both variants.</li>
-    <li>
-      In the assertive variant, "Insert block" and pressing the block both
-      read the block's name and nothing else.
-    </li>
-    <li>In the polite variant, both work.</li>
+    <li>In the assertive variant, adding a copy reads its name and nothing else.</li>
+    <li>In the polite variant, both are read.</li>
   </ul>
 
   <h2>Variants</h2>
@@ -108,17 +101,58 @@
   <h2>Notes</h2>
   <ul>
     <li>
-      The title says "ignored", but probably that's not quite what happens.
-      One guess from the Blockly testing was that VoiceOver starts reading the
-      assertive message and the block's name immediately cuts it off. If
-      "Announce only" works and the other two don't, assertive regions aren't
-      ignored outright, they just lose to whatever else the screenreader is
-      saying.
+      The earlier versions of this page tried to reproduce the other case from
+      the Blockly testing: starting a move on a block that already had focus.
+      We never got that to fail. The first version set the text and then moved
+      focus, and VoiceOver in Chrome and Safari started the message, was cut
+      off by the focused element's name, and then read the message again from
+      the start, in both variants. Switching to Blockly's order (focus first,
+      then text), then to SVG shapes with <code>role="figure"</code> like
+      Blockly's blocks, then adding the M key Blockly's testers pressed, and
+      then wrapping everything in <code>role="application"</code>, all behaved
+      the same in both variants in Safari. In the last detailed run, assertive
+      interrupted and polite waited, which is what the spec suggests, and the
+      move message was never lost. Once, the first move on the page dropped
+      everything after it, in both variants, and we never worked out why.
     </li>
     <li>
-      The order matches Blockly. Starting a move set the live region's text,
-      and only then moved focus to the block. If this doesn't reproduce, it's
-      worth trying the other order before deciding the bug is gone.
+      In Blockly, starting a move only lost the message some of the time, even
+      in a checkout at the tested commit. Inserting from the toolbox lost it
+      more reliably, so this version copies what happened to the page during
+      an insert instead. The <code>role="application"</code> variants are gone,
+      because Blockly didn't use it until pull request 9747 in April 2026, five
+      months after the testing.
+    </li>
+    <li>
+      The shapes stand in for the toolbox's flyout, which was its own
+      <code>&lt;svg&gt;</code> with a <code>role="tree"</code> group of
+      <code>role="treeitem"</code> blocks. The canvas stands in for the
+      workspace, a <code>role="region"</code> group of
+      <code>role="figure"</code> blocks. Pressing Enter on a flyout block did
+      all of this in one task: added a copy to the workspace, hid the whole
+      flyout with <code>display: none</code> while one of its blocks still had
+      focus, moved the copy into a separate drag layer, set the copy's
+      <code>aria-label</code>, <code>aria-selected</code> and
+      <code>tabindex</code>, focused it, and only then set the live region's
+      text. The page does the same, apart from the drag layer. The copy goes
+      straight into the canvas, because moving it to another group in the same
+      task probably isn't something a screenreader can see.
+    </li>
+    <li>
+      <code>aria-selected</code> isn't allowed on <code>role="figure"</code>,
+      but Blockly set it, so the page does too.
+    </li>
+    <li>
+      Things Blockly did that the page leaves out, in case this doesn't
+      reproduce. The toolbox's category list was an HTML tree, and its
+      selected category was deselected in the same task. A notification was
+      shown right after the announcement, which has its own page now (Live
+      regions added with their text already in them aren't read). The
+      announcement was longer and different every time, like "Moving to child
+      of" followed by another block's whole label. Blockly only announced
+      anything if there was already a block on the workspace to connect to,
+      and it drew a connection preview and a move icon before the
+      announcement.
     </li>
     <li>
       Some screenreaders have a milder version of this: they treat assertive
@@ -144,11 +178,6 @@
       <code>aria-live</code> to assertive just before an assertive message,
       which is a different setup we haven't tested.
     </li>
-    <li>
-      Pressing the same block twice repeats its message, which some
-      screenreaders skip. That's a separate problem with its own repro, so
-      press each block once.
-    </li>
   </ul>
 
   <h2>Sources</h2>
@@ -172,9 +201,34 @@
       first place.
     </li>
     <li>
-      <a href="https://github.com/google/blockly-keyboard-experimentation/blob/main/src/actions/mover.ts">blockly-keyboard-experimentation's
-      <code>mover.ts</code></a>: <code>startMove</code> starts the drag, which
-      sets the live region's text, before it moves focus to the block.
+      blockly-keyboard-experimentation's
+      <a href="https://github.com/RaspberryPiFoundation/blockly-keyboard-experimentation/blob/a36f3662b05c2ddcd18bde8745777fff8dc3df31/src/actions/enter.ts#L196-L236"><code>insertFromFlyout</code></a>
+      and
+      <a href="https://github.com/RaspberryPiFoundation/blockly-keyboard-experimentation/blob/a36f3662b05c2ddcd18bde8745777fff8dc3df31/src/actions/mover.ts#L130-L164"><code>startMove</code></a>,
+      on its <code>add-screen-reader-support-experimental</code> branch as it
+      was when Blockly was tested: what pressing Enter on a flyout block did.
+    </li>
+    <li>
+      Blockly's
+      <a href="https://github.com/RaspberryPiFoundation/blockly/blob/74a36d77692de4e282fdffc4dfb4e7112f740edc/core/flyout_base.ts#L810-L847"><code>Flyout.createBlock</code></a>,
+      at the commit that was tested: copies the block to the workspace and
+      hides the flyout.
+    </li>
+    <li>
+      Blockly's
+      <a href="https://github.com/RaspberryPiFoundation/blockly/blob/74a36d77692de4e282fdffc4dfb4e7112f740edc/core/block_svg.ts#L1896-L1902"><code>BlockSvg.startDrag</code></a>,
+      <a href="https://github.com/RaspberryPiFoundation/blockly/blob/74a36d77692de4e282fdffc4dfb4e7112f740edc/core/layer_manager.ts#L104-L112"><code>LayerManager.moveToDragLayer</code></a>,
+      <a href="https://github.com/RaspberryPiFoundation/blockly/blob/74a36d77692de4e282fdffc4dfb4e7112f740edc/core/focus_manager.ts#L541-L582"><code>FocusManager.activelyFocusNode</code></a>
+      and
+      <a href="https://github.com/RaspberryPiFoundation/blockly/blob/74a36d77692de4e282fdffc4dfb4e7112f740edc/core/block_svg.ts#L1981-L1992"><code>BlockSvg.onNodeFocus</code></a>,
+      at the same commit: the copy is moved to the drag layer and focused,
+      with its label and selection updated just before, and only then does
+      <code>startDrag</code> set the live region's text.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9747">Blockly
+      pull request 9747</a> (April 2026): the change that put
+      <code>role="application"</code> on the element Blockly injects.
     </li>
     <li>
       <a href="https://bugs.webkit.org/show_bug.cgi?id=222190">WebKit bug

@@ -1,4 +1,12 @@
-<button type="button">Announce only</button>
-<button type="button">Insert block</button>
-<div class="workspace"></div>
+<button type="button">Show shapes</button>
+<svg class="shapes" width="160" height="40" style="display: none">
+  <g role="tree" aria-label="Shapes">
+    <rect role="treeitem" tabindex="0" aria-label="Red square" width="40" height="40" fill="#c33"></rect>
+    <rect role="treeitem" tabindex="0" aria-label="Green square" x="60" width="40" height="40" fill="#393"></rect>
+    <rect role="treeitem" tabindex="0" aria-label="Blue square" x="120" width="40" height="40" fill="#36c"></rect>
+  </g>
+</svg>
+<svg class="canvas" width="400" height="40">
+  <g role="region" aria-label="Canvas"></g>
+</svg>
 <div aria-live="assertive"></div>

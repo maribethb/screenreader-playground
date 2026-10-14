@@ -14,6 +14,13 @@
     "status": "draft"
   },
   {
+    "slug": "live-region-added-with-text",
+    "title": "Live regions added with their text already in them aren't read",
+    "category": "ARIA spec issues",
+    "affects": ["VoiceOver on macOS", "NVDA", "JAWS"],
+    "status": "draft"
+  },
+  {
     "slug": "headings-in-lists",
     "title": "Headings inside list items",
     "category": "ARIA spec issues",
@@ -61,6 +68,13 @@
     "category": "VoiceOver",
     "affects": ["VoiceOver with Safari"],
     "status": "todo"
+  },
+  {
+    "slug": "live-region-during-focus-change",
+    "title": "Live region messages set while moving focus aren't read",
+    "category": "VoiceOver",
+    "affects": ["VoiceOver with Chrome"],
+    "status": "draft"
   },
   {
     "slug": "chromevox-region-announcements",

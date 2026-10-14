@@ -87,8 +87,6 @@ So the code, the steps and the expected output should use plain web concepts: el
 
 Blockly can still show up in the prose around the repro. The "Actual output" section and the notes are where we say what we saw in Blockly and how it got there, and that history is part of the evidence. It just shouldn't leak into the repro itself.
 
-`live-region-assertive` was written before we settled on this, and its code and steps still talk about blocks and a workspace. It'll get cleaned up in a separate pass.
-
 ## What a repro page looks like
 
 Every repro page follows the same template:
@@ -187,8 +185,10 @@ None of the entries below are specs. They're a record of what we know right now,
 
 At least one user agent refused to read assertive announcements, so we had to use `aria-live="polite"` even though assertive seemed more correct per the spec.
 
+This is historical context now. The bug turned out to be Chrome losing live region messages set in the same task as a focus change, assertive or polite, and that's `live-region-during-focus-change`. What to do with this page is still undecided.
+
 - Variants: `assertive` (broken), `polite` (our workaround).
-- It was VoiceOver on macOS, according to micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460). The assertive announcement was lost when focus moved at the same time, so the repro moves focus too. The repro page has the rest of the evidence.
+- It was VoiceOver on macOS, according to micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460). The assertive announcement was lost when focus moved at the same time. Starting a move on an already focused block only lost it some of the time, and we never reproduced that outside Blockly, so the repro copies inserting from the toolbox, which lost it more reliably: hide the list that has focus, focus a new element, then set the text. The repro page has the rest of the evidence.
 
 #### `live-region-announcements`
 
@@ -196,6 +196,13 @@ Repeated and overlapping live region messages. Saying the same message twice in 
 
 - Variants: `naive` (broken), `debounce`, `queue`. Possibly more once we look at the workaround history - I'll dig up references to these later.
 - Up for debate, but it might be worth splitting the overlap with automatic output into its own repro, since none of the variants fix it and that's kind of the point.
+
+#### `live-region-added-with-text`
+
+Blockly's notifications were each a new `role="status"` element, added to the page with their text already in them, and VoiceOver, NVDA and JAWS never read them. Blockly now announces them through the live region that's already in the page.
+
+- Variants: `new-region` (broken), `delayed-text` (add the region empty and set the text in a `setTimeout`, which MDN suggests), `existing-region` (Blockly's fix).
+- It came out of the same testing as `live-region-assertive`, and started out on that page. The notifications were always polite, so it's probably a separate bug. If the broken variant turns out to be read fine on its own, the next guess is that the assertive message Blockly set at the same time knocked out the polite notification.
 
 #### `headings-in-lists`
 
@@ -247,6 +254,15 @@ If you move a focused element to somewhere else in the DOM, Safari loses focus a
 When you focus a region, Safari doesn't read the region's label if a child of the region was already focused.
 
 - Variants: `broken`, plus whatever we did about it.
+
+#### `live-region-during-focus-change`
+
+In VoiceOver with Chrome, if focus moves and a live region changes in the same task, the live region message is never read, whether the region is assertive or polite. It only happens when the element that had focus and the one that gets it share no container that Chrome keeps in its accessibility tree, apart from the page. A plain `<div>` doesn't count, but one with an `id` or a `role="group"` does. Safari reads it. This is what was actually going on behind `live-region-assertive`.
+
+- Variants: `assertive` (broken), `polite` (Blockly's workaround, which doesn't help), `text-first` (set the text just before moving focus, just as broken), `set-timeout` (set the text in a later task, works some of the time), `group` and `div-with-id` (wrap both elements in a container Chrome keeps, works every time).
+- The page's `#repro` has `role="none"`, because a `<div id="repro">` is itself a container Chrome keeps, and hides the bug. Other repros haven't been checked for this.
+- Not sure yet: whether the macOS tree matches Blink's (check with Accessibility Inspector), and which delay, if any, works reliably.
+- It conflicts with micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460), which said polite was read. That testing didn't record the browser, and we don't know why the results differ. The repro page has the whole story.
 
 ### ChromeVox
 

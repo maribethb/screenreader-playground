@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live region messages set while moving focus aren't read - Screenreader playground</title>
+  <link rel="stylesheet" href="../../shared/page.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <p><a href="../../">All repros</a></p>
+  <h1>Live region messages set while moving focus aren't read</h1>
+
+  <h2>Affected</h2>
+  <!-- build:affects -->
+  <p>
+    VoiceOver on macOS with Chrome. We tested with Chrome 155.0.8059.41 on
+    macOS 27.0.1, and haven't recorded the VoiceOver version. VoiceOver with
+    Safari isn't affected. We haven't tried Firefox, or any other screenreader
+    with this page.
+  </p>
+
+  <h2>Steps to reproduce</h2>
+  <p>
+    Use Chrome, and reload the page between variants, so nothing is left in
+    the screenreader's speech queue.
+  </p>
+  <ol>
+    <li>Jump to the "Repro" heading.</li>
+    <li>
+      Move to the "Announce only" button and press it. This changes the live
+      region without moving focus, to show that the region works.
+    </li>
+    <li>
+      Move to the "Add item" button and press it. A new item is added, focus
+      moves to it, and the live region changes.
+    </li>
+    <li>
+      Move back to "Add item" and press it two or three more times, waiting
+      for the screenreader to stop talking each time.
+    </li>
+    <li>Repeat all of this with the other variants.</li>
+    <li>Repeat everything in Safari, which doesn't have the bug.</li>
+  </ol>
+
+  <h2>Expected output</h2>
+  <p>
+    "Announce only" reads "Announcement 1". Adding an item reads its name,
+    like "Item 2: a button at the end of the list", and "Added item 2". The
+    <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-live">ARIA spec</a>
+    doesn't say how live region messages should fit around the screenreader
+    reading the newly focused element, so this is what would be reasonable,
+    not what the spec requires. An assertive message might cut off the name,
+    and a polite one might wait until after it, but either way it should be
+    read.
+  </p>
+
+  <h2>Actual output</h2>
+  <p>In VoiceOver with Chrome:</p>
+  <ul>
+    <li>"Announce only" works.</li>
+    <li>
+      In the assertive, polite and text-first variants, adding an item reads
+      its name and never the message, however many times you add one.
+    </li>
+    <li>
+      In the set-timeout variant, the message is read some of the time. We
+      couldn't find a pattern to it.
+    </li>
+    <li>In the group and div-with-id variants, both are read every time.</li>
+  </ul>
+  <p>
+    It only happens when the button you press and the new item have no
+    container in common that Chrome puts in its accessibility tree, apart
+    from the page itself. Chrome leaves a plain <code>&lt;div&gt;</code> out
+    of the tree, but keeps it if it has an <code>id</code>, and it keeps any
+    element with a role like <code>group</code>. So if "Add item" and the new
+    item were both inside <code>&lt;div class="toolbar"&gt;</code>, the message
+    would be lost, and inside <code>&lt;div id="toolbar"&gt;</code> it would be
+    read.
+    Where the live region is doesn't matter. See the notes for how we found
+    this, and how sure we are.
+  </p>
+  <p>
+    In VoiceOver with Safari, earlier versions of this page read both in the
+    assertive and polite variants. We haven't tried this version in Safari.
+  </p>
+
+  <h2>Variants</h2>
+  <ul>
+    <li>
+      <a href="?variant=assertive">assertive</a>: focus moves to the new item,
+      then an assertive live region changes, in the same click handler. This is
+      the broken version, and what Blockly did when inserting a block from the
+      toolbox.
+    </li>
+    <li>
+      <a href="?variant=polite">polite</a>: the same, with
+      <code>aria-live="polite"</code>. This is what Blockly tried as the
+      workaround, and it's just as broken.
+    </li>
+    <li>
+      <a href="?variant=text-first">text-first</a>: the same as assertive, but
+      the live region changes just before focus moves, still in the same
+      click handler. The order doesn't matter, it's just as broken.
+    </li>
+    <li>
+      <a href="?variant=set-timeout">set-timeout</a>: the same as assertive,
+      but the live region changes in a <code>setTimeout(…, 0)</code>, in a
+      later task than the focus change. We thought this was the workaround,
+      but it only works some of the time.
+    </li>
+    <li>
+      <a href="?variant=group">group</a>: the same as assertive, but the
+      buttons and the list of items are inside a <code>role="group"</code>, so
+      the button you press and the new item share a container. This works
+      every time.
+    </li>
+    <li>
+      <a href="?variant=div-with-id">div-with-id</a>: the same as group, but
+      the container is a plain <code>&lt;div&gt;</code> with an
+      <code>id</code>. This also works every time. Without the
+      <code>id</code>, it's lost.
+    </li>
+  </ul>
+
+  <!-- build:code -->
+
+  <h2>Repro</h2>
+  <!-- role="none" stops Chrome exposing #repro to VoiceOver. As a container
+       shared by the button and the new item, it would hide the bug. -->
+  <div id="repro" role="none"><!-- build:repro --></div>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>
+      Every repro on this site is rendered inside a <code>&lt;div
+      id="repro"&gt;</code>, and the <code>id</code> means Chrome keeps it in
+      the accessibility tree. That would make it a container "Add item" and the
+      new item share, and hide the bug, so on this page it has
+      <code>role="none"</code>. Keep that in mind if you copy the code onto
+      another page: it only reproduces if nothing around it is in the tree.
+    </li>
+    <li>
+      This started out as the "Assertive live region announcements are
+      ignored" page, which tried to reproduce what micro:bit's testing of
+      Blockly found with VoiceOver: inserting a block from the toolbox moved
+      focus to the new block and set an assertive live region, and the message
+      was never read. With the region set to polite, it was read after the
+      block's name. The first versions of that page were close to this one,
+      with buttons standing in for blocks. VoiceOver read the message in both
+      variants, so we decided we hadn't reproduced it, and spent several rounds
+      copying more and more of Blockly onto the page.
+    </li>
+    <li>
+      The last of those rounds was a scratch page that copied every change
+      Blockly made to the page when a block was inserted, in order, with a
+      setting to turn each one off. It lost the message every time, in
+      assertive and polite, even with almost everything turned off. Setting the
+      text in a <code>setTimeout</code>, even with a 0 ms delay, got it read in
+      both. Setting the text before moving focus instead of after, focusing an
+      element that was already on the page instead of a new one, and changing
+      the new element's label made no difference.
+    </li>
+    <li>
+      Then it turned out the browser mattered. Chrome lost the message on a
+      copy of the earlier page, and Safari read it. In a Blockly checkout at
+      the tested commit, Chrome never read the message, even with the region
+      switched to polite, and Safari read it with the region assertive. We
+      decided the earlier versions of the page must have been tested in
+      Safari.
+    </li>
+    <li>
+      That was only part of it. When we moved the earlier page here, Chrome
+      read the message every time, and over several sessions the same small
+      page would read it, then lose it, then read it again. It came down to
+      the wrapper around the repro. The copy that lost it had none, and this
+      page had the <code>&lt;div id="repro"&gt;</code>. Wrapping "Add item"
+      and the new item in a plain <code>&lt;div&gt;</code> lost it, a <code>&lt;div&gt;</code>
+      with an <code>id</code> or a <code>role="group"</code> got it read, and
+      a <code>&lt;div role="presentation"&gt;</code> lost it. Wrapping only
+      the live region, or only the new item, lost it too. It has to be
+      something both of them are inside. The Blockly scratch page had a
+      <code>role="presentation"</code> wrapper, copied from Blockly, so it
+      lost the message too. To be more accurate about the earlier versions
+      of the page, then: they ran inside <code>#repro</code>, so they
+      probably read the message in Chrome as well, and the browser wasn't
+      the whole story.
+    </li>
+    <li>
+      To check what Chrome does with each wrapper, we dumped its
+      accessibility tree with <code>tools/ax-ancestors.mjs</code>. A
+      <code>&lt;div&gt;</code> without an <code>id</code> is in the tree but
+      marked ignored, one with an <code>id</code> is a <code>generic</code>
+      node, a <code>role="group"</code> is a <code>group</code> node, and a
+      <code>role="presentation"</code> one isn't there at all. Every page that
+      read the message had a container the two shared that wasn't ignored, and every page that lost it didn't. That's Blink's tree,
+      though, not the macOS one VoiceOver reads, and we haven't checked that
+      with Accessibility Inspector yet. It's also possible the tree isn't the
+      cause, just something that comes with it.
+    </li>
+    <li>
+      The set-timeout variant worked every time on the Blockly scratch page,
+      but only some of the time here. Our guess is that a 0 ms timeout
+      sometimes runs before Chrome has told VoiceOver about the focus change,
+      so both still arrive together. We're testing longer delays.
+    </li>
+    <li>
+      This conflicts with the Blockly testing, which said polite was read after
+      the block's name, and we can't explain it. The testing didn't record the
+      browser. If it was Safari, assertive should have worked, and if it was
+      Chrome, polite shouldn't have. It was almost a year before ours, so
+      macOS, VoiceOver or Chrome might have changed since, but that's a guess.
+    </li>
+    <li>
+      The Blockly testing tried several fixes, and the one that "fixes the
+      'insert from flyout' problem" was a 10 ms debounce before setting the
+      live region's text. They thought of it as stopping two messages from
+      colliding, but it also moves the text into a later task than the focus
+      change, which is what the set-timeout variant does. Blockly's live
+      region has had a debounce since then, so Blockly is probably less
+      affected now. Since a 0 ms delay isn't reliable, a 10 ms one might not
+      be either. We haven't checked.
+    </li>
+    <li>
+      A WebKit bug reports VoiceOver on macOS skipping live region messages
+      during focus changes in Safari, Chrome and Firefox. We only saw it in
+      Chrome, and Safari read every message.
+    </li>
+    <li>
+      The Blockly testing found that NVDA, JAWS and ChromeVox all read the
+      message when a block was inserted from the toolbox, so we don't expect
+      them to be affected.
+    </li>
+    <li>
+      The Blockly checkout used core's
+      <code>add-screen-reader-support-experimental</code> branch at
+      <code>74a36d7</code> and blockly-keyboard-experimentation's
+      <code>add-screen-reader-support-experimental</code> branch at
+      <code>a36f366</code>.
+    </li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9460">Blockly
+      issue 9460</a> (November 2025): micro:bit's review of Blockly's live
+      region announcements in VoiceOver, NVDA, JAWS and ChromeVox. This is
+      where the VoiceOver result and the debounce come from.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9436">Blockly
+      pull request 9436</a>: the change that made the region assertive.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9632">Blockly
+      issue 9632</a> and
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9653">pull
+      request 9653</a>: polite became the default, because "some platforms
+      wouldn't read assertive announcements at all".
+    </li>
+    <li>
+      blockly-keyboard-experimentation's
+      <a href="https://github.com/RaspberryPiFoundation/blockly-keyboard-experimentation/blob/a36f3662b05c2ddcd18bde8745777fff8dc3df31/src/actions/enter.ts#L196-L236"><code>insertFromFlyout</code></a>,
+      on its <code>add-screen-reader-support-experimental</code> branch as it
+      was when Blockly was tested, and Blockly's
+      <a href="https://github.com/RaspberryPiFoundation/blockly/blob/74a36d77692de4e282fdffc4dfb4e7112f740edc/core/focus_manager.ts#L541-L582"><code>FocusManager.activelyFocusNode</code></a>
+      and
+      <a href="https://github.com/RaspberryPiFoundation/blockly/blob/74a36d77692de4e282fdffc4dfb4e7112f740edc/core/block_svg.ts#L1896-L1902"><code>BlockSvg.startDrag</code></a>
+      at the tested commit: pressing Enter on a block in the toolbox focused
+      the new block and then set the live region's text, all in the same
+      task.
+    </li>
+    <li>
+      <a href="https://bugs.webkit.org/show_bug.cgi?id=222190">WebKit bug
+      222190</a> (filed February 2021): VoiceOver on macOS skips live region
+      messages during focus changes in Safari, Chrome and Firefox. Apple moved
+      it to VoiceOver, and it still reproduced on macOS 13.1 beta in November
+      2022.
+    </li>
+  </ul>
+
+  <!-- build:templates -->
+</body>
+</html>

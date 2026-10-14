@@ -13,6 +13,7 @@ Links use `blockly#1234` for [RaspberryPiFoundation/blockly](https://github.com/
 - [blockly#9436](https://github.com/RaspberryPiFoundation/blockly/pull/9436) made the live region assertive, because move mode announcements seemed like they should interrupt.
 - [blockly#9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460) is the cross-screenreader review that found the problem. **The user agent was VoiceOver.** With `assertive`, VoiceOver dropped the move mode announcement whenever a focus change also caused a block label to be read. With `polite` it was read after the block label. The working guess in the thread is that VoiceOver starts the assertive message and then the focus readout interrupts it.
 - [blockly#9632](https://github.com/RaspberryPiFoundation/blockly/issues/9632) records the decision to default to `polite`.
+- This page is historical context now. The bug turned out to be browser-specific and not about assertive, see `live-region-during-focus-change` below.
 
 #### `live-region-announcements`: Repeated and overlapping live region announcements
 
@@ -36,6 +37,12 @@ Follow-up work:
 - [blockly#9653](https://github.com/RaspberryPiFoundation/blockly/pull/9653): the live region in core.
 - [blockly#9762](https://github.com/RaspberryPiFoundation/blockly/issues/9762) → [blockly#9778](https://github.com/RaspberryPiFoundation/blockly/pull/9778): last-write-wins debounce dropped the move hint toast, so messages are now coalesced. That's probably another variant.
 - [blockly#9801](https://github.com/RaspberryPiFoundation/blockly/issues/9801) → [blockly#9817](https://github.com/RaspberryPiFoundation/blockly/pull/9817): once messages were coalesced, they ran together into one sentence. Separating them with newlines didn't work in VoiceOver, so we added punctuation instead.
+
+#### `live-region-added-with-text`: Live regions added with their text already in them aren't read
+
+- [blockly#9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460) found that NVDA, JAWS and VoiceOver didn't read toasts at all. ChromeVox did, plus the close button and "status". At the tested commit (`74a36d7`), `Toast.createDom` made each toast its own polite `role="status"` element and filled it in the same task. The thread's first approach, adding the element and setting its text in a `setTimeout(…, 0)`, got toasts read.
+- [blockly#9524](https://github.com/RaspberryPiFoundation/blockly/pull/9524) tried sending toasts through the shared live region, and was closed without merging.
+- [blockly#9667](https://github.com/RaspberryPiFoundation/blockly/issues/9667) → [blockly#9672](https://github.com/RaspberryPiFoundation/blockly/pull/9672): toasts announced through the shared live region, which is what shipped.
 
 #### `headings-in-lists`: Headings inside list items
 
@@ -100,6 +107,11 @@ Two things we found back up the "only when focusable" theory, if we ever want to
 - Things that were tried: blur then focus (needed a `tabindex` on `body` plus a delay on Safari, and still wasn't reliable), and announcing it through the live region instead (felt slow).
 - [blockly#9939](https://github.com/RaspberryPiFoundation/blockly/pull/9939) was a temporary fix that dropped the stack count on Apple devices.
 - [blockly#10087](https://github.com/RaspberryPiFoundation/blockly/pull/10087) is the real fix: focus a separate non-ancestor element inside the region (the workspace's selection rect) instead of the region itself. The PR notes this works better if that element isn't a `<g>`.
+
+#### `live-region-during-focus-change`: Live region messages set while moving focus aren't read
+
+- [blockly#9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460): with VoiceOver, inserting a block from the toolbox never read the move announcement while the region was assertive, and read it after the block's name when it was polite. We found that in Chrome it's lost either way (unless the old and new focus share a container Chrome keeps in its accessibility tree) and Safari reads it either way, so this doesn't match, and the thread doesn't say which browser was used. The thread's 10 ms debounce "fixes the 'insert from flyout' problem", which fits, since it sets the text in a later task. On our page a 0 ms `setTimeout` only works some of the time, so we don't know how reliable 10 ms is.
+- [blockly#9436](https://github.com/RaspberryPiFoundation/blockly/pull/9436) made the region assertive, and [blockly#9632](https://github.com/RaspberryPiFoundation/blockly/issues/9632) → [blockly#9653](https://github.com/RaspberryPiFoundation/blockly/pull/9653) made polite the default again.
 
 ### ChromeVox
 

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live regions added with their text already in them aren't read - Screenreader playground</title>
+  <link rel="stylesheet" href="../../shared/page.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <p><a href="../../">All repros</a></p>
+  <h1>Live regions added with their text already in them aren't read</h1>
+
+  <h2>Affected</h2>
+  <!-- build:affects -->
+  <p>
+    This is our best guess and nobody has confirmed it with this page yet.
+    Blockly's own testing found that VoiceOver on macOS, NVDA and JAWS never
+    read its notifications. ChromeVox did. The testing didn't record the
+    browsers.
+  </p>
+
+  <h2>Steps to reproduce</h2>
+  <p>
+    Reload the page between variants, so nothing is left in the screenreader's
+    speech queue.
+  </p>
+  <ol>
+    <li>Jump to the "Repro" heading.</li>
+    <li>Move to the "Show notification" button and press it.</li>
+    <li>
+      Wait until the screenreader has stopped talking, then press it again.
+      Do this two or three times.
+    </li>
+    <li>Repeat all of this with the other variants.</li>
+  </ol>
+
+  <h2>Expected output</h2>
+  <p>
+    Each press reads "Notification 1", "Notification 2" and so on, in every
+    variant.
+  </p>
+  <p>
+    The <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-live">ARIA spec</a>
+    doesn't say whether a live region that arrives with its text already in it
+    counts as a change, so this is what would be reasonable rather than what
+    the spec requires. MDN's live regions guide says not to rely on it: set up
+    the region empty, and change its text in a later task, or better, have the
+    region in the page from the start. The two workaround variants do one each.
+  </p>
+
+  <h2>Actual output</h2>
+  <p>
+    Not confirmed with this page yet. In Blockly, at the commit that was
+    tested, VoiceOver on macOS never read notifications, and we've checked that
+    again in a Blockly checkout at that commit. NVDA and JAWS didn't either.
+    ChromeVox did, but also read the notification's close button and the word
+    "status". So we expect, in VoiceOver, NVDA and JAWS:
+  </p>
+  <ul>
+    <li>The new-region variant reads nothing.</li>
+    <li>The delayed-text and existing-region variants read every notification.</li>
+  </ul>
+
+  <h2>Variants</h2>
+  <ul>
+    <li>
+      <a href="?variant=new-region">new-region</a>: each notification is a new
+      <code>role="status"</code> element, added to the page with its text
+      already in it. This is the broken version, and what Blockly did when it
+      was tested.
+    </li>
+    <li>
+      <a href="?variant=delayed-text">delayed-text</a>: the same, but the
+      element goes in empty and the text is added in a
+      <code>setTimeout(…, 0)</code>. This is what MDN suggests when a region
+      has to be added on the fly, and what the Blockly testers tried first.
+    </li>
+    <li>
+      <a href="?variant=existing-region">existing-region</a>: there's one
+      <code>role="status"</code> element in the page from the start, and each
+      notification changes its text. This is what Blockly does now.
+    </li>
+  </ul>
+
+  <!-- build:code -->
+
+  <h2>Repro</h2>
+  <div id="repro"><!-- build:repro --></div>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>
+      This started out on the <code>live-region-assertive</code> page. We
+      couldn't get that page's symptom (an assertive message lost when focus
+      moves) to happen outside Blockly, and the same testing said notifications
+      were never read at all, so we tried those instead. Blockly's
+      notifications were always polite, though, so whatever lost them probably
+      had nothing to do with assertive, and they got their own page.
+    </li>
+    <li>
+      The new-region variant copies Blockly's notification ("toast") at the
+      tested commit. To be more accurate, Blockly put the empty element in the
+      page first and then set its role, its <code>aria-live</code> and its
+      text, but all in the same task, so a screenreader probably can't tell
+      the difference. <code>aria-live="polite"</code> is redundant on a
+      <code>role="status"</code> element, but Blockly set both, so the page
+      does too.
+    </li>
+    <li>
+      The page leaves out some things Blockly's notification had: a close
+      button, removing itself after 5 seconds, a slide-in animation, and only
+      showing each hint once per session. Blockly showed a notification when
+      inserting a block from the toolbox, which also moved focus to the new
+      block and set the text of a separate assertive live region, all at once.
+      If the new-region variant is read fine here, those are the next things
+      to add back, starting with the assertive message. a11ysupport.io's test
+      data says VoiceOver on iOS lets an assertive message drop a polite one
+      that's waiting, and that would be a different bug.
+    </li>
+    <li>
+      The delayed-text variant is close to the first approach in the Blockly
+      issue, which added a new live region element for every message and set
+      its text in a <code>setTimeout(…, 0)</code>. The author said it "worked
+      well for getting toast messages announced", but it was dropped because
+      messages didn't interrupt each other, so the output fell behind while
+      moving a block. That's a problem for a stream of messages, not for a
+      notification on its own.
+    </li>
+    <li>
+      The existing-region variant is a simplified version of Blockly's fix. In
+      Blockly, the notification is still a new element, but it's not a live
+      region any more. Its text is sent through the live region Blockly already
+      had for its other messages, which is offscreen. Here the visible
+      notification is the live region, to keep the code short.
+    </li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9460">Blockly
+      issue 9460</a> (November 2025): micro:bit's review of Blockly's live
+      region announcements in VoiceOver, NVDA, JAWS and ChromeVox. This is
+      where the result and the <code>setTimeout</code> approach come from.
+    </li>
+    <li>
+      Blockly's
+      <a href="https://github.com/RaspberryPiFoundation/blockly/blob/74a36d77692de4e282fdffc4dfb4e7112f740edc/core/toast.ts#L88-L160"><code>Toast.createDom</code></a>,
+      at the commit that was tested: how a notification was built.
+      Notifications were polite unless the caller asked otherwise.
+    </li>
+    <li>
+      blockly-keyboard-experimentation's
+      <a href="https://github.com/RaspberryPiFoundation/blockly-keyboard-experimentation/blob/a36f3662b05c2ddcd18bde8745777fff8dc3df31/src/actions/enter.ts#L196-L236"><code>insertFromFlyout</code></a>
+      and
+      <a href="https://github.com/RaspberryPiFoundation/blockly-keyboard-experimentation/blob/a36f3662b05c2ddcd18bde8745777fff8dc3df31/src/hints.ts#L25-L52">the
+      move hints</a>, on its <code>add-screen-reader-support-experimental</code>
+      branch as it was when Blockly was tested: inserting a block starts a
+      move and then shows a hint as a notification, without asking for
+      assertive.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9524">Blockly
+      pull request 9524</a> (closed December 2025 without merging): the first
+      attempt at sending notifications through the shared live region.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9672">Blockly
+      pull request 9672</a> (April 2026): the fix that shipped, which takes
+      the live region off the notification and announces its text through the
+      shared one.
+    </li>
+    <li>
+      <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions">MDN's
+      ARIA live regions guide</a>: set up the region before changing its
+      content, use a later task if the region is added with JavaScript, and
+      prefer having it in the initial markup.
+    </li>
+    <li>
+      <a href="https://github.com/accessibilitysupported/a11ysupport.io/blob/master/data/tests/tech/aria/aria-live.json">a11ysupport.io
+      aria-live test data</a> (tested November 2022): VoiceOver on iOS lets an
+      assertive message drop a waiting polite one.
+    </li>
+  </ul>
+
+  <!-- build:templates -->
+</body>
+</html>

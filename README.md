@@ -18,3 +18,13 @@ npm run typecheck
 5. Restart `npm run dev` so esbuild picks up the new entry point.
 
 Keep the repro generic. The code, steps and expected output should use plain web concepts like "move element" or "add item", not Blockly ones like "move block" or "workspace", so a reader who's never used Blockly can follow it. Blockly can still come up in the prose around the repro, like the "Actual output" and notes sections, where we describe what we saw there. See [Generic examples](docs/design.md#generic-examples-not-blockly-ones) in the design doc.
+
+## Checking Chrome's accessibility tree
+
+`tools/ax-ancestors.mjs` prints an element's ancestors in Chrome's accessibility tree, marking the ones Chrome ignores. It starts its own headless Chrome, so run it with the dev server up:
+
+```sh
+node tools/ax-ancestors.mjs "http://localhost:8000/repros/live-region-during-focus-change/?variant=group" "Add item"
+```
+
+Pass more URL and name pairs to compare pages. This is Blink's tree, not the macOS one VoiceOver reads, so check anything important with Accessibility Inspector too.

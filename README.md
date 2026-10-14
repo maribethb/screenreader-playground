@@ -4,7 +4,7 @@ Minimal reproductions of the screenreader problems we ran into while making Bloc
 
 ```sh
 npm install
-npm run dev        # build, watch and serve on http://localhost:8000/
+npm run dev        # build, watch and serve on a free port, preferring 8000; set PORT to pick one
 npm run build      # one-off build into dist/
 npm run typecheck
 ```

@@ -33,7 +33,7 @@ Other findings from the same thread:
 
 Follow-up work:
 
-- [blockly#9524](https://github.com/RaspberryPiFoundation/blockly/pull/9524): toasts announced, repeated messages announced, and the debounce.
+- [blockly#9524](https://github.com/RaspberryPiFoundation/blockly/pull/9524): toasts announced, repeated messages announced, and the debounce. It was closed without being merged, and the debounce reached core through blockly#9653 instead.
 - [blockly#9653](https://github.com/RaspberryPiFoundation/blockly/pull/9653): the live region in core.
 - [blockly#9762](https://github.com/RaspberryPiFoundation/blockly/issues/9762) → [blockly#9778](https://github.com/RaspberryPiFoundation/blockly/pull/9778): last-write-wins debounce dropped the move hint toast, so messages are now coalesced. That's probably another variant.
 - [blockly#9801](https://github.com/RaspberryPiFoundation/blockly/issues/9801) → [blockly#9817](https://github.com/RaspberryPiFoundation/blockly/pull/9817): once messages were coalesced, they ran together into one sentence. Separating them with newlines didn't work in VoiceOver, so we added punctuation instead.

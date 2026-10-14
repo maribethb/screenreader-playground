@@ -77,7 +77,7 @@ So the code we show has to be the minimal reproduction and nothing else. That ha
 - Each code block gets its own heading ("HTML" and "TypeScript") so screenreader users can skip past it. The markup is escaped text, so the `<h3>`s in the code block above are just characters and don't end up in the page's heading list.
 - No syntax highlighting, at least to start with. It'd be nice to have, but it's a fancy UI feature and the code blocks are short. If we want it later, it should happen at build time so the page doesn't render anything with script.
 
-For variants that are workarounds, the code block is where the reader sees how much more code it took. The `live-region-announcements` repro going from a one-line `textContent` assignment to a whole message queue makes the case better than any sentence in the article could.
+For variants that are workarounds, the code block is where the reader sees how much more code it took. The `live-region-announcements` repro going from a one-line `textContent` assignment to a debounce with its own message queue makes the case better than any sentence in the article could.
 
 ### Generic examples, not Blockly ones
 
@@ -194,7 +194,8 @@ This is historical context now. The bug turned out to be Chrome losing live regi
 
 Repeated and overlapping live region messages. Saying the same message twice in a row didn't behave well, so we added a debounce. We then ended up writing our own message queue. Even with the queue, there's no way to stop live region announcements from overlapping with the screenreader's own automatic output, like reading the newly focused element.
 
-- Variants: `naive` (broken), `debounce`, `queue`. Possibly more once we look at the workaround history - I'll dig up references to these later.
+- Variants: `naive` (broken), then the five approaches from micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460#issuecomment-3502962801): `new-element`, `two-regions`, `one-region`, `debounce` and `append`.
+- The page is about repeated messages. Two of the approaches only differ when two messages arrive at once, so there's a button for that too, but polite versus assertive is left to `live-region-assertive`.
 - Up for debate, but it might be worth splitting the overlap with automatic output into its own repro, since none of the variants fix it and that's kind of the point.
 
 #### `live-region-added-with-text`

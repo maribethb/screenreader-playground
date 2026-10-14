@@ -13,40 +13,133 @@
 
   <h2>Affected</h2>
   <!-- build:affects -->
+  <p>
+    We've confirmed VoiceOver on macOS with this page, in Safari and Chrome.
+    NVDA and JAWS come from Blockly's own testing, which found that NVDA,
+    JAWS and VoiceOver didn't read a message that was the same as the one
+    before it, and ChromeVox did. That testing didn't record which browsers
+    were used, except that one of the workarounds failed in NVDA with Chrome
+    but not with Firefox.
+  </p>
 
   <h2>Steps to reproduce</h2>
   <ol>
     <li>Jump to the "Repro" heading.</li>
-    <li>Move to the "Add block" button.</li>
-    <li>Press the button three times in quick succession.</li>
+    <li>
+      Move to the "Add item" button and press it three times. Wait for the
+      announcement to finish each time, so the messages never have to
+      interrupt each other.
+    </li>
+    <li>
+      Move to the "Add item with tip" button and press it once. This adds an
+      item and shows a tip at the same time, so there are two messages to
+      announce at once.
+    </li>
+    <li>Press "Add item with tip" again, after the first one has finished.</li>
+    <li>Repeat with the other variants. Switching variants reloads the page.</li>
   </ol>
 
   <h2>Expected output</h2>
   <p>
-    The ARIA spec doesn't say what should happen when a live region is set to
-    the same text twice, so this is what would be reasonable rather than what
-    the spec requires: "Block added" is announced once per press.
+    The <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-live">ARIA spec</a>
+    says screenreaders should present changes to a live region, but doesn't
+    say what happens when the region is given the same text it already has,
+    or when the text changes twice before the screenreader gets to it. So
+    this is what would be reasonable, not what the spec requires:
   </p>
+  <ul>
+    <li>Every press of "Add item" reads "Item added."</li>
+    <li>
+      Every press of "Add item with tip" reads "Item added." and "Tip: new
+      items go at the end of the list." Either order would be fine.
+    </li>
+  </ul>
 
   <h2>Actual output</h2>
   <p>
-    "Block added" is announced once, after the first press. Later presses set
-    the same text, which isn't a change, so nothing is announced.
+    With VoiceOver on macOS, naive was tried in both Safari and Chrome, and
+    the rest in Safari:
   </p>
+  <ul>
+    <li>
+      naive: "Item added." is read after the first press of "Add item" and
+      not after the next two. Setting <code>textContent</code> replaces the
+      text node even if the text is the same, so the DOM does change, but the
+      text doesn't, and that's what screenreaders seem to go by. "Add item
+      with tip" only ever reads the tip, the same as one-region below.
+    </li>
+    <li>
+      one-region: every press of "Add item" is read. But "Add item with tip"
+      only ever reads the tip, on both presses. "Item added." is never read,
+      and it never shows up in the region on screen either, because it's
+      replaced in the same click, before the browser draws anything or tells
+      the screenreader about it.
+    </li>
+    <li>new-element, two-regions, debounce and append: everything is read.</li>
+  </ul>
+  <p>
+    This is what Blockly's testing found with each approach, which covers
+    the other screenreaders. The testing comment doesn't say which
+    screenreaders every approach was tried with, but presumably it was all
+    four.
+  </p>
+  <ul>
+    <li>
+      naive: NVDA, JAWS and VoiceOver didn't read a message that was the same
+      as the one before it. ChromeVox did.
+    </li>
+    <li>
+      new-element: repeated messages and both messages at once were read.
+      The messages never interrupted each other, so pressing a button
+      quickly got the screenreader further and further behind.
+    </li>
+    <li>
+      two-regions: repeated messages were read, and so were both messages at
+      once. Again, the messages never interrupted each other.
+    </li>
+    <li>
+      one-region: repeated messages were read. With two messages at once,
+      usually only one of them was read, and sometimes neither.
+    </li>
+    <li>
+      debounce: everything was read. This was the only approach that worked
+      well in all four screenreaders.
+    </li>
+    <li>
+      append: everything was read, except in NVDA with Chrome, which read
+      the whole region every time. So the second press of "Add item" read
+      "Item added. Item added.", and by the end it was reading every message
+      since the page loaded. NVDA with Firefox only read the new paragraph.
+    </li>
+  </ul>
 
   <h2>Variants</h2>
   <ul>
     <li>
-      <a href="?variant=naive">naive</a>: sets the live region's text on every
-      press. This is the broken version.
+      <a href="?variant=naive">naive</a>: sets the live region's text to the
+      message. This is the broken version.
     </li>
     <li>
-      <a href="?variant=debounce">debounce</a>: clears the region on every
-      press, then sets the text once presses stop.
+      <a href="?variant=new-element">new-element</a>: adds a brand new live
+      region for every message and sets its text a moment later.
     </li>
     <li>
-      <a href="?variant=queue">queue</a>: queues every message and announces
-      them one at a time, clearing the region in between.
+      <a href="?variant=two-regions">two-regions</a>: one live region for
+      status messages and one for tips. If a message is the same as that
+      region's last one, it gets a non-breaking space on the end.
+    </li>
+    <li>
+      <a href="?variant=one-region">one-region</a>: the same, but with a
+      single live region for both kinds of message.
+    </li>
+    <li>
+      <a href="?variant=debounce">debounce</a>: one live region. Every other
+      message gets a non-breaking space, and messages are collected for 10
+      milliseconds and then added to the region together.
+    </li>
+    <li>
+      <a href="?variant=append">append</a>: adds each message to the live
+      region as a new paragraph and never removes the old ones.
     </li>
   </ul>
 
@@ -58,14 +151,133 @@
   <h2>Notes</h2>
   <ul>
     <li>
-      This is a placeholder repro, written to try out the site's structure.
-      The steps, outputs and variants haven't been checked against a real
-      screenreader or against the Blockly workaround history.
+      This page is about repeated messages, and about two messages arriving
+      at once, which only came up because it decided between two of the
+      workarounds. It doesn't try to cover polite and assertive regions,
+      which have
+      <a href="../live-region-assertive/">their own repro</a>. Every region
+      here is polite. At the time of the testing, Blockly's region was
+      assertive. It had been polite until a few days before.
     </li>
     <li>
-      None of the variants stop announcements from overlapping with the
-      screenreader's own output, like reading the newly focused element. That
-      might end up as its own repro.
+      It also doesn't cover messages overlapping with the screenreader's own
+      output, like reading the newly focused element. Nothing here moves
+      focus. That might end up as its own repro.
+    </li>
+    <li>
+      "Messages never interrupted each other" was a complaint about
+      new-element and two-regions. Arguably that's just what a polite region
+      is supposed to do, so it's not what this page is testing. That's why
+      the steps say to wait between presses.
+    </li>
+    <li>
+      The non-breaking space trick relies on screenreaders not reading the
+      non-breaking space, but still counting it as a change. one-region and
+      two-regions compare against the last text that was set, so a third
+      repeat drops the space again rather than adding a second one.
+    </li>
+    <li>
+      In one-region, step 4 sets the same final text as step 3. The tip is
+      compared against "Item added.", which was set a moment earlier in the
+      same click, so the tip doesn't get a space. We expected VoiceOver to
+      skip it, the same way naive's repeated "Item added." is skipped. It
+      didn't: it read the tip on every press. So replacing the text twice in
+      one click counts as a change, even though the first replacement is
+      never read, and setting the same text once doesn't. We don't know why.
+      It also means this probably isn't where "sometimes neither" came from,
+      at least in VoiceOver.
+    </li>
+    <li>
+      debounce alternates the space for every message, not for every
+      announcement. "Add item with tip" sends two messages, so the space
+      flips twice and ends up where it started, and the region's text is the
+      same on every press. In theory that makes step 4 a repeat. But the
+      region is emptied straight away and only filled 10 milliseconds later,
+      and in VoiceOver that's enough: step 4 is read like any other press.
+      Given what one-region does, the gap might not even matter, and any
+      change in between might be enough.
+    </li>
+    <li>
+      In Blockly the tip was a toast, a visible popup that was its own live
+      region. NVDA, JAWS and VoiceOver never read the toasts at all, probably
+      because the toast's region was added to the page with its text already
+      in it. That's a different problem, and it's why new-element sets the
+      text a moment after adding the region. Here the tip is a plain
+      message, so the page is only testing the two messages arriving at once.
+    </li>
+    <li>
+      The NVDA with Chrome problem in append looks like a bug in one of the
+      two rather than anything to do with repeated messages. It might deserve
+      its own page.
+    </li>
+    <li>
+      None of these shipped as-is. When the live region moved into Blockly
+      core, it kept the debounce and the alternating space, but the latest
+      message replaced any pending ones instead of being added to them, and
+      the region was only emptied when the new text went in. That dropped
+      messages, so a later change went back to collecting them, and then
+      had to add punctuation between them so they didn't run together into
+      one sentence. That history probably belongs in a separate repro about
+      two messages at once, if we make one.
+    </li>
+    <li>
+      The code comes from microbit's experiments, which are on the
+      <code>aria-live-fixes</code> and <code>aria-live</code> branches of
+      <code>microbit-matt-hillsdon/blockly</code>, based on
+      <code>add-screen-reader-support-experimental</code> at
+      <code>74a36d77692de4e282fdffc4dfb4e7112f740edc</code>. naive is
+      <code>announceDynamicAriaState</code> in
+      <code>core/utils/aria.ts</code> at that commit. new-element is
+      <code>75ddf80c41240e33546a9589b1be83f45870d2e1</code>, append is
+      <code>d1c7e55bb98802a3f851035c33bae5fe12442d07</code>, and debounce is
+      <code>05829f82107dfd1196866e3a8559791995cedb34</code>. two-regions and
+      one-region don't seem to have been committed anywhere, so they're
+      written from the description in the testing comment. The comment says
+      new-element used <code>setTimeout(…, 0)</code>, but the commit uses 10
+      milliseconds, so that's what's here.
+    </li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9460">Blockly
+      issue 9460</a> (November 2025): micro:bit's review of Blockly's live
+      region announcements in NVDA, JAWS, ChromeVox and VoiceOver. The
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9460#issuecomment-3502962801">comment
+      listing every approach they tried</a> is where the variants and their
+      results come from.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9524">Blockly
+      pull request 9524</a>: the debounce version, opened against the
+      screenreader branch and closed without being merged, with a note that
+      it would probably be merged once things settled down.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9653">Blockly
+      pull request 9653</a>: the live region in Blockly core, with the
+      latest message replacing pending ones.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9762">Blockly
+      issue 9762</a> and
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9778">pull
+      request 9778</a>: replacing pending messages dropped a hint, so
+      messages are collected again.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9801">Blockly
+      issue 9801</a> and
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9817">pull
+      request 9817</a>: collected messages ran together, newlines didn't help
+      in VoiceOver, so they're separated with punctuation.
+    </li>
+    <li>
+      <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-live">WAI-ARIA 1.2,
+      aria-live</a> and
+      <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-atomic">aria-atomic</a>:
+      what live regions are supposed to do.
     </li>
   </ul>
 

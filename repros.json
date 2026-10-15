@@ -34,8 +34,11 @@
     "slug": "headings-in-lists",
     "title": "Headings inside list items",
     "category": "ARIA spec issues",
-    "affects": ["TBD"],
-    "status": "todo"
+    "affects": ["VoiceOver on macOS"],
+    "environments": {
+      "VoiceOver": {"Chrome": "affected", "Safari": "affected"}
+    },
+    "status": "verified"
   },
   {
     "slug": "lifecycle-timing",

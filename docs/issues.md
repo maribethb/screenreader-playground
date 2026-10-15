@@ -49,6 +49,8 @@ Follow-up work:
 - [blockly#9618](https://github.com/RaspberryPiFoundation/blockly/issues/9618): flyout labels are announced as headings, so experienced users pressed H to jump between them and nothing happened. The issue isn't sure whether that's because they aren't real headings or because of `role="application"`.
 - [blockly#9874](https://github.com/RaspberryPiFoundation/blockly/pull/9874) added our own H / Shift+H shortcuts as the workaround.
 - **Caution for the repro:** inside `role="application"`, the screenreader's browse-mode keys (like H) are supposed to go to the page, so H not working there is expected behavior. The repro should test headings in lists *without* `role="application"` first, or we risk blaming lists for something the application role caused.
+- The labels were never real headings. They were `role="listitem"` elements, and [blockly#9774](https://github.com/RaspberryPiFoundation/blockly/pull/9774) added ", heading" to the end of their `aria-label`, with a comment saying the heading role would overwrite the list item role. `role="application"` ([blockly#9747](https://github.com/RaspberryPiFoundation/blockly/pull/9747)) landed about seven weeks after 9618 was filed, so it wasn't the original cause.
+- [blockly#9495](https://github.com/RaspberryPiFoundation/blockly/issues/9495) is the flyout ARIA structure discussion. It started out proposing `role="heading"` for labels, and Ben's comment there says the `application` role overrides "all screen reader interactions".
 
 #### `lifecycle-timing`: `tabindex` and `aria-*` changes depend on rendering lifecycle timing
 

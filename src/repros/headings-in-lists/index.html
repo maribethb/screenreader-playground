@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Headings inside list items - Screenreader playground</title>
+  <link rel="stylesheet" href="../../shared/page.css">
+</head>
+<body>
+  <p><a href="../../">All repros</a></p>
+  <h1>Headings inside list items</h1>
+
+  <h2>Affected</h2>
+  <!-- build:environments -->
+  <p>
+    We've confirmed VoiceOver on macOS with this page, in both Chrome and
+    Safari. We haven't tried any other screenreader. We couldn't find anyone
+    else reporting this, so it's possible it's specific to one VoiceOver
+    setting (see the notes).
+  </p>
+
+  <h2>Steps to reproduce</h2>
+  <p>
+    In VoiceOver, "next heading" is VO+Command+H, or H if Quick Nav
+    single-key navigation is on. In NVDA and JAWS it's H in browse mode.
+  </p>
+  <ol>
+    <li>
+      Jump to the "Repro" heading with the next heading key. This is the
+      control: it shows that heading navigation works on this page.
+    </li>
+    <li>
+      Press the next heading key again. The repro is a list of four items,
+      and only the third one has a heading in it.
+    </li>
+    <li>
+      Open the screenreader's list of headings (the rotor in VoiceOver,
+      NVDA+F7 in NVDA, Insert+F6 in JAWS) and look for "This is a heading".
+    </li>
+    <li>
+      Go back to the "Repro" heading and read forward one item at a time
+      (VO+Right Arrow in VoiceOver, Down Arrow in NVDA and JAWS). The other
+      three items are there to compare against: plain text, a paragraph and
+      a button. If the heading is read differently from the others, or
+      skipped, that's the bug.
+    </li>
+  </ol>
+
+  <h2>Expected output</h2>
+  <p>
+    This is what the specs say should happen, not just what would be
+    reasonable. The HTML spec lets an <code>&lt;li&gt;</code> contain any
+    flow content, which includes headings. In ARIA, a
+    <code>listitem</code>'s children aren't presentational, and nothing
+    restricts what can go inside one. So the heading is an ordinary heading,
+    and the screenreader should treat it like any other heading on the page:
+  </p>
+  <ul>
+    <li>
+      After "Repro", the next heading is "This is a heading", read as heading
+      level 1.
+      Some screenreaders will also say it's item 3 of 4 in a list.
+    </li>
+    <li>"This is a heading" is in the headings list.</li>
+    <li>
+      Reading forward item by item reads each item's text, with "This is a
+      heading" read as a heading and "This is a button" read as a button,
+      probably with the list's size at the start.
+    </li>
+  </ul>
+
+  <h2>Actual output</h2>
+  <p>
+    With VoiceOver on macOS, in Chrome and Safari, H doesn't move to the
+    heading inside the list. We haven't written down yet whether it skips
+    it and goes on to "Notes", stops at "Repro", or does something else, or
+    whether the heading is missing from the rotor too.
+  </p>
+  <p>
+    This isn't quite what happened in Blockly. Users pressed H in the
+    flyout (the panel of items you can drag out) and nothing happened, but
+    the flyout's labels were never real headings. Each label was a
+    <code>role="listitem"</code> element whose <code>aria-label</code> ended
+    in ", heading". The heading role couldn't go on the same element,
+    because an element only has one role, and making it a heading would
+    have stopped it being a list item. This page tests the obvious way out,
+    nesting a real heading inside the list item, and whether that would
+    have worked.
+  </p>
+
+  <!-- build:code -->
+
+  <h2>Repro</h2>
+  <div id="repro"><!-- build:repro --></div>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>
+      This isn't a spec problem, and the markup is a common pattern. A table
+      of contents is a list of headings. Heydon Pickering's Inclusive
+      Components recommends a list of cards with a heading in each one, so
+      screenreader users get both heading navigation and an item count. If
+      this page reproduces, it's a screenreader bug, not an authoring
+      mistake.
+    </li>
+    <li>
+      There is a known way for headings to vanish, but it doesn't apply
+      here. Some roles have presentational children, so a heading inside
+      them stops being a heading. <code>button</code>, <code>option</code>
+      and <code>tab</code> are the common ones, and WebKit has an open bug
+      about headings inside buttons missing from the VoiceOver rotor.
+      <code>listitem</code> isn't one of them.
+    </li>
+    <li>
+      VoiceOver on macOS exposes list items as groups. In VoiceOver's group
+      navigation mode (VoiceOver Utility, Web), you have to interact with a
+      list to get at its items, and in DOM navigation mode you don't. Our
+      best guess is that heading navigation only fails in one of the two
+      modes, so it's worth testing both and recording which one was on.
+    </li>
+    <li>
+      Safari drops list semantics from lists with
+      <code>list-style: none</code>. This page keeps the bullets, so the
+      list should be exposed as a list. If the bug only shows up without
+      bullets, that's something else.
+    </li>
+    <li>
+      The heading is level 1 because that's the simplest version. It sits
+      under the page's level 2 "Repro" heading, which is an odd outline but
+      shouldn't affect navigation. If it turns out to matter, try level 3.
+    </li>
+    <li>
+      Blockly also put everything inside <code>role="application"</code>
+      later on, which hands keys like H to the page instead of the
+      screenreader. That would stop H working on its own, list or no list,
+      so it's left out of this page. It landed about seven weeks after the
+      issue was filed, so it wasn't the original cause either.
+    </li>
+    <li>
+      Blockly's flyout has since moved from <code>list</code> and
+      <code>listitem</code> to <code>listbox</code> and
+      <code>option</code>, for Windows Narrator. <code>option</code> has
+      presentational children, so nesting a heading wouldn't work there
+      even if this page shows that it works in a plain list.
+    </li>
+    <li>
+      Where the Blockly code came from: the markup at the time of the issue
+      is in <code>core/flyout_button.ts</code> on blockly's
+      <code>add-screen-reader-support-experimental</code> branch at commit
+      <code>909c294e</code> (5 January 2026), with
+      blockly-keyboard-experimentation's
+      <code>add-screen-reader-support-experimental</code> branch at
+      <code>24edccbc</code> (10 December 2025). Neither branch moved again
+      before the issue was filed. The ", heading" label and the comment
+      about roles are in <code>packages/blockly/core/flyout_button.ts</code>
+      at <code>3c79e6cc</code> on blockly's <code>v13</code> branch (15 May
+      2026), which is where the H shortcut workaround was merged.
+    </li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9618">Blockly
+      issue 9618</a> (March 2026): users expected H to move between flyout
+      labels, and it didn't. The issue guesses that's because "they're not
+      true headings" or because of the application role. A comment from
+      micro:bit's user testing says users "do tend to try shortcuts they're
+      used to".
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9874">Blockly
+      pull request 9874</a>: our workaround, which adds Blockly's own H and
+      Shift+H shortcuts to move between labels in the flyout.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9774">Blockly
+      pull request 9774</a>: added ", heading" to the end of the label's
+      <code>aria-label</code>, with the comment explaining why it couldn't
+      use the heading role.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9495">Blockly
+      issue 9495</a>: the discussion of the flyout's ARIA structure. It
+      started out proposing <code>role="heading"</code> for labels, and
+      ended up with list items.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9747">Blockly
+      pull request 9747</a> (merged April 2026): added
+      <code>role="application"</code>.
+    </li>
+    <li>
+      <a href="https://html.spec.whatwg.org/multipage/grouping-content.html#the-li-element">HTML,
+      the li element</a>: the content model is flow content, which includes
+      headings.
+    </li>
+    <li>
+      <a href="https://w3c.github.io/aria/#listitem">WAI-ARIA, listitem</a>:
+      no "Children Presentational" entry and no restriction on what it
+      contains. Compare
+      <a href="https://w3c.github.io/aria/#childrenArePresentational">Children
+      Presentational</a> for the roles that do hide their children.
+    </li>
+    <li>
+      <a href="https://w3c.github.io/html-aria/#el-li">ARIA in HTML, li</a>:
+      an <code>li</code> inside a list can't take any role other than
+      <code>listitem</code>, so <code>&lt;li role="heading"&gt;</code> isn't
+      allowed. The heading has to be nested.
+    </li>
+    <li>
+      <a href="https://bugs.webkit.org/show_bug.cgi?id=244881">WebKit bug
+      244881</a> (filed September 2022, still open): headings inside a
+      button aren't in the VoiceOver rotor, because button children are
+      presentational.
+    </li>
+    <li>
+      <a href="https://w3c.github.io/core-aam/#role-map-listitem">Core-AAM,
+      listitem</a>: maps to <code>AXGroup</code> on macOS.
+    </li>
+    <li>
+      <a href="https://support.apple.com/guide/voiceover/navigate-webpages-vo2711/mac">Apple's
+      VoiceOver guide, navigating webpages</a>: group navigation mode versus
+      DOM navigation mode.
+    </li>
+    <li>
+      <a href="https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html">Scott
+      O'Hara, "Lists and Safari"</a>: Safari drops list semantics from
+      unstyled lists.
+    </li>
+    <li>
+      <a href="https://inclusive-components.design/cards/">Heydon Pickering,
+      Inclusive Components, "Cards"</a> (2018): a list of cards with a
+      heading in each.
+    </li>
+  </ul>
+
+  <!-- build:templates -->
+</body>
+</html>

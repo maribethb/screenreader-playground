@@ -221,10 +221,11 @@ Blockly's notifications were each a new `role="status"` element, added to the pa
 
 #### `headings-in-lists`
 
-Headings inside list items don't work properly. This probably affects all browsers. Heading navigation behaves strangely, but we don't remember exactly how.
+Headings inside list items don't work properly. With VoiceOver on macOS, in Chrome and Safari, H doesn't move to them. Nothing in HTML or ARIA forbids them, and we couldn't find anyone else reporting this.
 
-- Variants: `broken` only, unless we find a workaround while investigating.
-- Needs investigation: what actually goes wrong. Missing from the headings list, skipped during heading navigation, read with the wrong level, or something else.
+- Variants: `broken` only. The list has four items (plain text, a paragraph, a heading and a button), so the heading can be compared with the other kinds of content in the same list.
+- Blockly's flyout labels were never real headings. They were list items with ", heading" at the end of their label, because an element can't be a heading and a list item at once. So the repro is really testing whether nesting a real heading inside the list item would have worked. The repro page has the rest of the evidence.
+- Needs investigation: what actually goes wrong. Skipped during heading navigation, missing from the headings list, or something else. It might depend on VoiceOver's group versus DOM navigation setting.
 
 #### `lifecycle-timing`
 

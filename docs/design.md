@@ -92,7 +92,7 @@ Blockly can still show up in the prose around the repro. The "Actual output" sec
 Every repro page follows the same template:
 
 1. A heading with the issue name, and a link back to the index.
-2. Which screenreaders and browsers are affected, as far as we know.
+2. Which environments are affected: a table of screenreaders against browsers, followed by a paragraph on where those results come from.
 3. Steps to reproduce.
 4. Expected output.
 5. Actual output.
@@ -100,6 +100,15 @@ Every repro page follows the same template:
 7. The code for the current variant, as described above.
 8. The repro itself, in a container introduced by its own heading so it's easy to jump to.
 9. Notes, including anything we still don't know.
+
+The table is under an "Affected" heading. It has a row for each of VoiceOver, JAWS, NVDA and ChromeVox, and a column for each of Chrome, Safari and Firefox. Each cell answers "is it affected?" with one of:
+
+- Yes, on a red background: we've seen the bug with that screenreader in that browser.
+- No, on a green background: we've tried it and it works.
+- Unknown: nobody has tried it, or a source didn't say which browser it used.
+- N/A: the combination doesn't exist. ChromeVox only runs in Chrome, and JAWS and NVDA only run on Windows, where there's no Safari.
+
+The colors are only there for skimming, since the word says the same thing. A cell is only yes or no if someone tried that screenreader in that browser, with the repro page or in Blockly. Blockly's own testing often didn't record the browser, so those cells stay unknown, and the paragraph under the table says what that testing found.
 
 The code comes before the live repro on purpose. Sighted readers see the innocent-looking markup first and then try it, and screenreader users can jump straight to the repro heading if they'd rather hear it first.
 
@@ -127,7 +136,7 @@ screenreader-playground/
   package.json
   tsconfig.json
   build.mjs
-  repros.json            # slug, title, category, affected screenreaders, status
+  repros.json            # slug, title, category, affected environments, status
   src/
     index.html           # index page template
     shared/
@@ -167,9 +176,14 @@ screenreader-playground/
   "title": "Assertive live region announcements are ignored",
   "category": "ARIA",
   "affects": ["TBD"],
+  "environments": {
+    "VoiceOver": {"Chrome": "affected", "Safari": "not affected"}
+  },
   "status": "todo"
 }
 ```
+
+`affects` is a short summary for the index. `environments` fills in the table on the repro page, as `"affected"`, `"not affected"` or `"unknown"`. Anything it leaves out is unknown, and the build fills in N/A and fails if a result is given for an N/A combination.
 
 `status` is one of `todo`, `draft` (the page exists but we haven't confirmed it reproduces), or `verified` (someone has heard the bug with a real screenreader). The index shows the status next to each link, so we can publish the site before every repro is done without claiming more than we know.
 

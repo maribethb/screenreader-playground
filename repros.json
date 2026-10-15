@@ -4,6 +4,9 @@
     "title": "Assertive live region announcements are ignored",
     "category": "ARIA spec issues",
     "affects": ["VoiceOver on macOS"],
+    "environments": {
+      "ChromeVox": {"Chrome": "not affected"}
+    },
     "status": "draft"
   },
   {
@@ -11,6 +14,10 @@
     "title": "Repeated and overlapping live region announcements",
     "category": "ARIA spec issues",
     "affects": ["NVDA", "JAWS", "VoiceOver"],
+    "environments": {
+      "VoiceOver": {"Chrome": "affected", "Safari": "affected"},
+      "ChromeVox": {"Chrome": "not affected"}
+    },
     "status": "verified"
   },
   {
@@ -18,6 +25,9 @@
     "title": "Live regions added with their text already in them aren't read",
     "category": "ARIA spec issues",
     "affects": ["VoiceOver on macOS", "NVDA", "JAWS"],
+    "environments": {
+      "ChromeVox": {"Chrome": "not affected"}
+    },
     "status": "draft"
   },
   {
@@ -74,6 +84,9 @@
     "title": "Live region messages set while moving focus aren't read",
     "category": "VoiceOver",
     "affects": ["VoiceOver with Chrome"],
+    "environments": {
+      "VoiceOver": {"Chrome": "affected", "Safari": "not affected"}
+    },
     "status": "draft"
   },
   {

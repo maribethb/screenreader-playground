@@ -29,3 +29,22 @@ code {
   border: 2px dashed #666;
   padding: 1rem;
 }
+
+.environments {
+  border-collapse: collapse;
+}
+
+.environments th,
+.environments td {
+  border: 1px solid #ccc;
+  padding: 0.25rem 0.75rem;
+  text-align: left;
+}
+
+.environments .affected {
+  background: #f8d7da;
+}
+
+.environments .not-affected {
+  background: #d4edda;
+}

@@ -19,6 +19,18 @@ const OUT = 'dist';
 const REPROS = path.join(SRC, 'repros');
 const STATUSES = {todo: 'to do', draft: 'draft', verified: 'verified'};
 
+// The environments table on each repro page. Combinations that can't exist
+// (ChromeVox only runs in Chrome, JAWS and NVDA only on Windows) are N/A, and
+// anything repros.json doesn't mention is unknown.
+const SCREENREADERS = ['VoiceOver', 'JAWS', 'NVDA', 'ChromeVox'];
+const BROWSERS = ['Chrome', 'Safari', 'Firefox'];
+const NOT_APPLICABLE = {ChromeVox: ['Safari', 'Firefox'], JAWS: ['Safari'], NVDA: ['Safari']};
+const RESULTS = {
+  'affected': '<td class="affected">Yes</td>',
+  'not affected': '<td class="not-affected">No</td>',
+  'unknown': '<td>Unknown</td>',
+};
+
 function escapeHtml(text) {
   return text
     .replaceAll('&', '&amp;')
@@ -51,6 +63,22 @@ function readManifest() {
     if (entry.status !== 'todo' && !fs.existsSync(path.join(REPROS, entry.slug))) {
       throw new Error(`repros.json: ${entry.slug} is ${entry.status} but has no directory`);
     }
+    for (const [screenreader, browsers] of Object.entries(entry.environments ?? {})) {
+      if (!SCREENREADERS.includes(screenreader)) {
+        throw new Error(`repros.json: ${entry.slug} has unknown screenreader "${screenreader}"`);
+      }
+      for (const [browser, result] of Object.entries(browsers)) {
+        if (!BROWSERS.includes(browser)) {
+          throw new Error(`repros.json: ${entry.slug} has unknown browser "${browser}"`);
+        }
+        if (NOT_APPLICABLE[screenreader]?.includes(browser)) {
+          throw new Error(`repros.json: ${entry.slug} gives a result for ${screenreader} with ${browser}, which is N/A`);
+        }
+        if (!Object.hasOwn(RESULTS, result)) {
+          throw new Error(`repros.json: ${entry.slug} has unknown result "${result}" for ${screenreader} with ${browser}`);
+        }
+      }
+    }
   }
   for (const slug of reproSlugs()) {
     if (!slugs.has(slug)) throw new Error(`${REPROS}/${slug} has no entry in repros.json`);
@@ -78,6 +106,18 @@ function readVariants(slug) {
 
 function codeBlock(heading, source) {
   return `<h3>${heading}</h3>\n<pre><code>${escapeHtml(source.trimEnd())}</code></pre>`;
+}
+
+function environmentsTable(environments = {}) {
+  const header = BROWSERS.map((browser) => `<th scope="col">${browser}</th>`).join('');
+  const rows = SCREENREADERS.map((screenreader) => {
+    const cells = BROWSERS.map((browser) => {
+      if (NOT_APPLICABLE[screenreader]?.includes(browser)) return '<td>N/A</td>';
+      return RESULTS[environments[screenreader]?.[browser] ?? 'unknown'];
+    });
+    return `<tr><th scope="row">${screenreader}</th>${cells.join('')}</tr>`;
+  });
+  return `<table class="environments">\n<thead>\n<tr><td></td>${header}</tr>\n</thead>\n<tbody>\n${rows.join('\n')}\n</tbody>\n</table>`;
 }
 
 function buildRepro(entry) {
@@ -115,7 +155,7 @@ function buildRepro(entry) {
         .map((variant) => `<template data-variant="${variant.id}">\n${variant.html}</template>\n`)
         .join('');
 
-  html = fill(html, 'affects', `<ul>\n${entry.affects.map((a) => `<li>${escapeHtml(a)}</li>`).join('\n')}\n</ul>`, file);
+  html = fill(html, 'environments', environmentsTable(entry.environments), file);
   html = fill(html, 'code', code.join('\n'), file);
   html = fill(html, 'repro', single ? variants[0].html : '', file);
   html = fill(html, 'templates', templates, file);

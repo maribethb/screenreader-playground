@@ -136,7 +136,7 @@ screenreader-playground/
   package.json
   tsconfig.json
   build.mjs
-  repros.json            # slug, title, category, affected environments, status
+  repros.json            # slug, title, category, environments
   src/
     index.html           # index page template
     shared/
@@ -172,28 +172,29 @@ screenreader-playground/
 
 ```json
 {
-  "slug": "live-region-assertive",
-  "title": "Assertive live region announcements are ignored",
-  "category": "ARIA",
-  "affects": ["TBD"],
+  "slug": "list-style-none",
+  "title": "Safari drops list semantics when the bullets are hidden",
+  "category": "Screenreader quirks",
+  "screenreader": "VoiceOver",
   "environments": {
-    "VoiceOver": {"Chrome": "affected", "Safari": "not affected"}
-  },
-  "status": "todo"
+    "VoiceOver": {"Chrome": "not affected", "Safari": "affected"}
+  }
 }
 ```
 
-`affects` is a short summary for the index. `environments` fills in the table on the repro page, as `"affected"`, `"not affected"` or `"unknown"`. Anything it leaves out is unknown, and the build fills in N/A and fails if a result is given for an N/A combination.
+`category` is the heading the index puts it under: "Live region issues", "Region announcements", "Spec issues", "Screenreader quirks" or "Focus problems". Screenreader quirks that only one screenreader has also get a `screenreader`, which puts them under a subheading for it. The ones that are about more than one screenreader, like `label-role-comma`, go above the subheadings.
 
-`status` is one of `todo`, `draft` (the page exists but we haven't confirmed it reproduces), or `verified` (someone has heard the bug with a real screenreader). The index shows the status next to each link, so we can publish the site before every repro is done without claiming more than we know.
+`environments` fills in the table on the repro page, as `"affected"`, `"not affected"` or `"unknown"`. Anything it leaves out is unknown, and the build fills in N/A and fails if a result is given for an N/A combination. Repros without a page don't have a table, so what we think they affect lives in [issues.md](issues.md) instead.
+
+Repros with a page are links on the index, and the rest are plain text.
 
 ## Repro catalogue
 
-Repros are named by symptom rather than by screenreader, since the same page will often be tested with several screenreaders. The index groups them using the same categories as the article.
+Repros are named by symptom rather than by screenreader, since the same page will often be tested with several screenreaders. The index groups them into live region issues, region announcements, spec issues, screenreader quirks (split up by screenreader where only one is affected) and focus problems, and so does this catalogue.
 
-None of the entries below are specs. They're a record of what we know right now, and a starting point for whoever (or whatever) picks up each repro.
+None of the entries below are specs. They're a record of what we know right now, and a starting point for whoever (or whatever) picks up each repro. Issues we haven't written up here yet are only in [issues.md](issues.md).
 
-### ARIA spec issues
+### Live region issues
 
 #### `live-region-assertive`
 
@@ -219,12 +220,36 @@ Blockly's notifications were each a new `role="status"` element, added to the pa
 - Variants: `new-region` (broken), `delayed-text` (add the region empty and set the text in a `setTimeout`, which MDN suggests), `existing-region` (Blockly's fix).
 - It came out of the same testing as `live-region-assertive`, and started out on that page. The notifications were always polite, so it's probably a separate bug. If the broken variant turns out to be read fine on its own, the next guess is that the assertive message Blockly set at the same time knocked out the polite notification.
 
-#### `lifecycle-timing`
+#### `live-region-during-focus-change`
 
-Changing `tabindex` and some `aria-*` properties has to be done at the right point in the rendering lifecycle, or the change doesn't take effect the way you'd expect.
+In VoiceOver with Chrome, if focus moves and a live region changes in the same task, the live region message is never read, whether the region is assertive or polite. It only happens when the element that had focus and the one that gets it share no container that Chrome keeps in its accessibility tree, apart from the page. A plain `<div>` doesn't count, but one with an `id` or a `role="group"` does. Safari reads it. This is what was actually going on behind `live-region-assertive`.
 
-- Variants: probably `wrong-timing` and `right-timing`.
-- Needs investigation: we don't know what the wrong and right orderings were. The fix should be findable in the Blockly commit history.
+- Variants: `assertive` (broken), `polite` (Blockly's workaround, which doesn't help), `text-first` (set the text just before moving focus, just as broken), `set-timeout` (set the text in a later task, works some of the time), `group` and `div-with-id` (wrap both elements in a container Chrome keeps, works every time).
+- The page's `#repro` has `role="none"`, because a `<div id="repro">` is itself a container Chrome keeps, and hides the bug. Other repros haven't been checked for this.
+- Not sure yet: whether the macOS tree matches Blink's (check with Accessibility Inspector), and which delay, if any, works reliably.
+- It conflicts with micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460), which said polite was read. That testing didn't record the browser, and we don't know why the results differ. The repro page has the whole story.
+
+### Region announcements
+
+#### `voiceover-region-announcements`
+
+VoiceOver makes region announcements we didn't expect.
+
+- Needs investigation: what setup triggers them. See the open question about whether this shares a page with `chromevox-region-announcements`.
+
+#### `safari-region-label-child-focused`
+
+When you focus a region, Safari doesn't read the region's label if a child of the region was already focused.
+
+- Variants: `broken`, plus whatever we did about it.
+
+#### `chromevox-region-announcements`
+
+ChromeVox is inconsistent about reading region announcements.
+
+- Needs investigation: what "inconsistent" means in practice, and whether it's the same setup as `voiceover-region-announcements`.
+
+### Spec issues
 
 #### Skipped: `role="none"` not removing elements from the accessibility tree
 
@@ -241,7 +266,9 @@ Screenreaders don't agree on whether to put a comma between an element's label a
 - Blockly's fix ([blockly#10279](https://github.com/RaspberryPiFoundation/blockly/pull/10279)) adds the comma everywhere except Apple devices, since a page can't detect the screenreader.
 - Not sure yet: what JAWS and ChromeVox do.
 
-#### `markup-in-lists`
+#### VoiceOver
+
+##### `markup-in-lists`
 
 VoiceOver on macOS reads lists with other markup inside the items inconsistently. Each item with a paragraph, heading or button in it takes two stops, one for "Bullet" and one for the content, and the position in the list ("2 of 4") is read on the bullet going forward but on the content going back. Nothing in HTML or ARIA forbids the markup, so this is a VoiceOver quirk, not a spec issue.
 
@@ -250,77 +277,42 @@ VoiceOver on macOS reads lists with other markup inside the items inconsistently
 - Hiding the bullets to get rid of the extra stops runs into Safari dropping list semantics from lists with `list-style: none`. That's `list-style-none`.
 - Not sure yet: whether it depends on VoiceOver's group versus DOM navigation setting.
 
-### VoiceOver
-
-#### `list-style-none`
+##### `list-style-none`
 
 If a list's bullets are hidden with `list-style: none`, Safari stops exposing it to VoiceOver as a list. Adding `role="list"` brings the semantics back. Other browsers and screenreaders aren't affected.
 
 - Variants: `list-style-none` (broken), `role-list` (the workaround). Each has a list with bullets above the one without, to compare.
 - We didn't hit this in Blockly, whose flyout was an SVG group with explicit list roles. It came up as the obvious way to hide the extra "Bullet" stops in `markup-in-lists`.
 
-#### `voiceover-group`
+##### `voiceover-group`
 
 VoiceOver says "group" a lot. We never add `role="group"` ourselves. Sometimes it's coming from SVG `<g>` elements, and sometimes we don't know where it's coming from.
 
 - Variants: probably one per trigger we can identify, starting with SVG groups.
 - Needs investigation: what else causes it.
 
-#### `voiceover-treeitem`
+##### `voiceover-treeitem`
 
 VoiceOver and Safari have problems with `role="treeitem"`.
 
 - Needs investigation: everything, including what the problem is.
 
-#### `voiceover-region-announcements`
+#### JAWS
 
-VoiceOver makes region announcements we didn't expect.
-
-- Needs investigation: what setup triggers them. See the open question about whether this shares a page with `chromevox-region-announcements`.
-
-#### `safari-moved-element-focus`
-
-If you move a focused element to somewhere else in the DOM, Safari loses focus and refuses to read it.
-
-- Variants: `broken`, plus whatever we did about it.
-
-#### `safari-region-label-child-focused`
-
-When you focus a region, Safari doesn't read the region's label if a child of the region was already focused.
-
-- Variants: `broken`, plus whatever we did about it.
-
-#### `live-region-during-focus-change`
-
-In VoiceOver with Chrome, if focus moves and a live region changes in the same task, the live region message is never read, whether the region is assertive or polite. It only happens when the element that had focus and the one that gets it share no container that Chrome keeps in its accessibility tree, apart from the page. A plain `<div>` doesn't count, but one with an `id` or a `role="group"` does. Safari reads it. This is what was actually going on behind `live-region-assertive`.
-
-- Variants: `assertive` (broken), `polite` (Blockly's workaround, which doesn't help), `text-first` (set the text just before moving focus, just as broken), `set-timeout` (set the text in a later task, works some of the time), `group` and `div-with-id` (wrap both elements in a container Chrome keeps, works every time).
-- The page's `#repro` has `role="none"`, because a `<div id="repro">` is itself a container Chrome keeps, and hides the bug. Other repros haven't been checked for this.
-- Not sure yet: whether the macOS tree matches Blink's (check with Accessibility Inspector), and which delay, if any, works reliably.
-- It conflicts with micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460), which said polite was read. That testing didn't record the browser, and we don't know why the results differ. The repro page has the whole story.
-
-### ChromeVox
-
-#### `chromevox-region-announcements`
-
-ChromeVox is inconsistent about reading region announcements.
-
-- Needs investigation: what "inconsistent" means in practice, and whether it's the same setup as `voiceover-region-announcements`.
-
-#### `chromevox-repeated-reads`
-
-ChromeVox reads the same focused node two or three times without the user changing anything.
-
-- Needs investigation: what triggers it. We don't have a guess yet.
-
-### JAWS
-
-#### `jaws-application-combobox`
+##### `jaws-application-combobox`
 
 Inside a `role="application"` container, JAWS still reads interaction hints that don't apply. For a `role="combobox"`, JAWS says you can press down arrow to open the dropdown. In application mode keystrokes go straight to the app, so that's only true if the app happens to implement it, and the spec doesn't require it to.
 
 - Variants: `broken` to start with. Workaround attempts to come.
 - Note that this needs Windows and JAWS to verify, which narrows down who can do it.
+
+#### ChromeVox
+
+##### `chromevox-repeated-reads`
+
+ChromeVox reads the same focused node two or three times without the user changing anything.
+
+- Needs investigation: what triggers it. We don't have a guess yet.
 
 ### Focus problems
 
@@ -330,6 +322,19 @@ When a focused element is removed from the DOM, Chrome and Firefox/Safari behave
 
 - This one doesn't need a screenreader at all. The page has a button that removes the focused element, and the event log shows which events fired.
 - Needs investigation: which way round it is. This should be searchable, and there's probably a spec discussion about it.
+
+#### `safari-moved-element-focus`
+
+If you move a focused element to somewhere else in the DOM, Safari loses focus and refuses to read it.
+
+- Variants: `broken`, plus whatever we did about it.
+
+#### `lifecycle-timing`
+
+Changing `tabindex` and some `aria-*` properties has to be done at the right point in the rendering lifecycle, or the change doesn't take effect the way you'd expect.
+
+- Variants: probably `wrong-timing` and `right-timing`.
+- Needs investigation: we don't know what the wrong and right orderings were. The fix should be findable in the Blockly commit history.
 
 ## Testing
 

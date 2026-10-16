@@ -17,7 +17,17 @@ import path from 'node:path';
 const SRC = 'src';
 const OUT = 'dist';
 const REPROS = path.join(SRC, 'repros');
-const STATUSES = {todo: 'to do', draft: 'draft', verified: 'verified'};
+// The index's headings, in order. Screenreader quirks are split further by
+// each entry's `screenreader`, and entries without one go above the split.
+const CATEGORIES = [
+  'Live region issues',
+  'Region announcements',
+  'Spec issues',
+  'Screenreader quirks',
+  'Focus problems',
+];
+const QUIRKS = 'Screenreader quirks';
+const QUIRK_SCREENREADERS = ['VoiceOver', 'JAWS', 'NVDA', 'ChromeVox', 'Narrator'];
 
 // The environments table on each repro page. Combinations that can't exist
 // (ChromeVox only runs in Chrome, JAWS and NVDA only on Windows) are N/A, and
@@ -57,11 +67,16 @@ function readManifest() {
   const manifest = JSON.parse(fs.readFileSync('repros.json', 'utf8'));
   const slugs = new Set(manifest.map((entry) => entry.slug));
   for (const entry of manifest) {
-    if (!Object.hasOwn(STATUSES, entry.status)) {
-      throw new Error(`repros.json: ${entry.slug} has unknown status "${entry.status}"`);
+    if (!CATEGORIES.includes(entry.category)) {
+      throw new Error(`repros.json: ${entry.slug} has unknown category "${entry.category}"`);
     }
-    if (entry.status !== 'todo' && !fs.existsSync(path.join(REPROS, entry.slug))) {
-      throw new Error(`repros.json: ${entry.slug} is ${entry.status} but has no directory`);
+    if (entry.screenreader !== undefined) {
+      if (entry.category !== QUIRKS) {
+        throw new Error(`repros.json: ${entry.slug} has a screenreader but isn't in "${QUIRKS}"`);
+      }
+      if (!QUIRK_SCREENREADERS.includes(entry.screenreader)) {
+        throw new Error(`repros.json: ${entry.slug} has unknown screenreader "${entry.screenreader}"`);
+      }
     }
     for (const [screenreader, browsers] of Object.entries(entry.environments ?? {})) {
       if (!SCREENREADERS.includes(screenreader)) {
@@ -165,17 +180,30 @@ function buildRepro(entry) {
   fs.writeFileSync(path.join(outDir, 'index.html'), html);
 }
 
-function buildIndex(manifest) {
-  const categories = Map.groupBy(manifest, (entry) => entry.category);
-  const sections = [...categories].map(([category, entries]) => {
-    const items = entries.map((entry) => {
-      const title = escapeHtml(entry.title);
-      const name = entry.status === 'todo' ? title : `<a href="repros/${entry.slug}/">${title}</a>`;
-      const details = `${STATUSES[entry.status]}; affects: ${escapeHtml(entry.affects.join(', '))}`;
-      return `<li>${name} (${details})</li>`;
-    });
-    return `<h2>${escapeHtml(category)}</h2>\n<ul>\n${items.join('\n')}\n</ul>`;
+// Repros with a page are links. The rest are plain text, so the index also
+// shows what's still to do.
+function indexList(entries) {
+  const items = entries.map((entry) => {
+    const title = escapeHtml(entry.title);
+    if (!fs.existsSync(path.join(REPROS, entry.slug))) return `<li>${title}</li>`;
+    return `<li><a href="repros/${entry.slug}/">${title}</a></li>`;
   });
+  return `<ul>\n${items.join('\n')}\n</ul>`;
+}
+
+function buildIndex(manifest) {
+  const sections = [];
+  for (const category of CATEGORIES) {
+    const entries = manifest.filter((entry) => entry.category === category);
+    if (entries.length === 0) continue;
+    sections.push(`<h2>${escapeHtml(category)}</h2>`);
+    const general = entries.filter((entry) => entry.screenreader === undefined);
+    if (general.length > 0) sections.push(indexList(general));
+    for (const screenreader of QUIRK_SCREENREADERS) {
+      const own = entries.filter((entry) => entry.screenreader === screenreader);
+      if (own.length > 0) sections.push(`<h3>${screenreader}</h3>`, indexList(own));
+    }
+  }
 
   const file = path.join(SRC, 'index.html');
   const html = fill(fs.readFileSync(file, 'utf8'), 'index', sections.join('\n'), file);

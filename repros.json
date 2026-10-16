@@ -2,146 +2,167 @@
   {
     "slug": "live-region-assertive",
     "title": "Assertive live region announcements are ignored",
-    "category": "ARIA spec issues",
-    "affects": ["VoiceOver on macOS"],
+    "category": "Live region issues",
     "environments": {
       "ChromeVox": {"Chrome": "not affected"}
-    },
-    "status": "draft"
+    }
   },
   {
     "slug": "live-region-announcements",
     "title": "Repeated and overlapping live region announcements",
-    "category": "ARIA spec issues",
-    "affects": ["NVDA", "JAWS", "VoiceOver"],
+    "category": "Live region issues",
     "environments": {
       "VoiceOver": {"Chrome": "affected", "Safari": "affected"},
       "ChromeVox": {"Chrome": "not affected"}
-    },
-    "status": "verified"
+    }
   },
   {
     "slug": "live-region-added-with-text",
     "title": "Live regions added with their text already in them aren't read",
-    "category": "ARIA spec issues",
-    "affects": ["VoiceOver on macOS", "NVDA", "JAWS"],
+    "category": "Live region issues",
     "environments": {
       "ChromeVox": {"Chrome": "not affected"}
-    },
-    "status": "draft"
+    }
   },
   {
-    "slug": "lifecycle-timing",
-    "title": "tabindex and aria-* changes depend on rendering lifecycle timing",
-    "category": "ARIA spec issues",
-    "affects": ["TBD"],
-    "status": "todo"
+    "slug": "live-region-during-focus-change",
+    "title": "Live region messages set while moving focus aren't read",
+    "category": "Live region issues",
+    "environments": {
+      "VoiceOver": {"Chrome": "affected", "Safari": "not affected"}
+    }
+  },
+  {
+    "slug": "nvda-chrome-aria-atomic",
+    "title": "NVDA with Chrome ignores aria-atomic=\"false\"",
+    "category": "Live region issues"
+  },
+  {
+    "slug": "popup-region-announcements",
+    "title": "Popups outside the region cause region exit and enter announcements",
+    "category": "Region announcements"
+  },
+  {
+    "slug": "region-container-announcements",
+    "title": "Missing or extra region and container announcements",
+    "category": "Region announcements"
+  },
+  {
+    "slug": "voiceover-region-announcements",
+    "title": "Unexpected region announcements in VoiceOver",
+    "category": "Region announcements"
+  },
+  {
+    "slug": "safari-region-label-child-focused",
+    "title": "Safari skips the region label when a child was already focused",
+    "category": "Region announcements"
+  },
+  {
+    "slug": "chromevox-region-announcements",
+    "title": "ChromeVox is inconsistent about region announcements",
+    "category": "Region announcements"
   },
   {
     "slug": "label-role-comma",
     "title": "Screenreaders disagree about pausing between the label and the role",
     "category": "Screenreader quirks",
-    "affects": ["VoiceOver", "NVDA"],
     "environments": {
       "VoiceOver": {"Chrome": "affected", "Safari": "affected", "Firefox": "affected"},
       "NVDA": {"Chrome": "not affected", "Firefox": "not affected"}
-    },
-    "status": "verified"
+    }
+  },
+  {
+    "slug": "same-markup-different-readouts",
+    "title": "Same markup, four different readouts",
+    "category": "Screenreader quirks"
+  },
+  {
+    "slug": "aria-owns-navigation",
+    "title": "aria-owns changes navigation, not just the tree",
+    "category": "Screenreader quirks"
   },
   {
     "slug": "markup-in-lists",
     "title": "Markup inside list items",
     "category": "Screenreader quirks",
-    "affects": ["VoiceOver on macOS"],
     "environments": {
       "VoiceOver": {"Chrome": "affected", "Safari": "affected"}
     },
-    "status": "verified"
+    "screenreader": "VoiceOver"
   },
   {
     "slug": "list-style-none",
     "title": "Safari drops list semantics when the bullets are hidden",
-    "category": "VoiceOver",
-    "affects": ["VoiceOver with Safari"],
+    "category": "Screenreader quirks",
     "environments": {
       "VoiceOver": {"Chrome": "not affected", "Safari": "affected", "Firefox": "not affected"},
       "JAWS": {"Chrome": "not affected", "Firefox": "not affected"},
       "NVDA": {"Chrome": "not affected", "Firefox": "not affected"},
       "ChromeVox": {"Chrome": "not affected"}
     },
-    "status": "verified"
+    "screenreader": "VoiceOver"
   },
   {
     "slug": "voiceover-group",
     "title": "VoiceOver says \"group\" a lot",
-    "category": "VoiceOver",
-    "affects": ["VoiceOver"],
-    "status": "todo"
+    "category": "Screenreader quirks",
+    "screenreader": "VoiceOver"
   },
   {
     "slug": "voiceover-treeitem",
     "title": "VoiceOver and Safari problems with role=\"treeitem\"",
-    "category": "VoiceOver",
-    "affects": ["VoiceOver with Safari"],
-    "status": "todo"
+    "category": "Screenreader quirks",
+    "screenreader": "VoiceOver"
   },
   {
-    "slug": "voiceover-region-announcements",
-    "title": "Unexpected region announcements in VoiceOver",
-    "category": "VoiceOver",
-    "affects": ["VoiceOver"],
-    "status": "todo"
-  },
-  {
-    "slug": "safari-moved-element-focus",
-    "title": "Safari loses focus when a focused element is moved",
-    "category": "VoiceOver",
-    "affects": ["VoiceOver with Safari"],
-    "status": "todo"
-  },
-  {
-    "slug": "safari-region-label-child-focused",
-    "title": "Safari skips the region label when a child was already focused",
-    "category": "VoiceOver",
-    "affects": ["VoiceOver with Safari"],
-    "status": "todo"
-  },
-  {
-    "slug": "live-region-during-focus-change",
-    "title": "Live region messages set while moving focus aren't read",
-    "category": "VoiceOver",
-    "affects": ["VoiceOver with Chrome"],
-    "environments": {
-      "VoiceOver": {"Chrome": "affected", "Safari": "not affected"}
-    },
-    "status": "draft"
-  },
-  {
-    "slug": "chromevox-region-announcements",
-    "title": "ChromeVox is inconsistent about region announcements",
-    "category": "ChromeVox",
-    "affects": ["ChromeVox"],
-    "status": "todo"
-  },
-  {
-    "slug": "chromevox-repeated-reads",
-    "title": "ChromeVox reads the same focused node more than once",
-    "category": "ChromeVox",
-    "affects": ["ChromeVox"],
-    "status": "todo"
+    "slug": "inflated-item-counts",
+    "title": "Decorative or unfocusable elements inflate \"x of y\" counts",
+    "category": "Screenreader quirks",
+    "screenreader": "VoiceOver"
   },
   {
     "slug": "jaws-application-combobox",
     "title": "JAWS reads combobox hints inside role=\"application\"",
-    "category": "JAWS",
-    "affects": ["JAWS"],
-    "status": "todo"
+    "category": "Screenreader quirks",
+    "screenreader": "JAWS"
+  },
+  {
+    "slug": "chromevox-repeated-reads",
+    "title": "ChromeVox reads the same focused node more than once",
+    "category": "Screenreader quirks",
+    "screenreader": "ChromeVox"
+  },
+  {
+    "slug": "speech-synthesis-disabled",
+    "title": "Speech synthesis is disabled while a screenreader is on",
+    "category": "Screenreader quirks",
+    "screenreader": "ChromeVox"
+  },
+  {
+    "slug": "narrator-listitem-label",
+    "title": "Narrator ignores aria-label on role=\"listitem\"",
+    "category": "Screenreader quirks",
+    "screenreader": "Narrator"
+  },
+  {
+    "slug": "narrator-scan-mode-tab",
+    "title": "Narrator scan mode and Tab",
+    "category": "Screenreader quirks",
+    "screenreader": "Narrator"
   },
   {
     "slug": "focusout-on-removal",
     "title": "focusout when a focused element is removed",
-    "category": "Focus problems",
-    "affects": ["TBD"],
-    "status": "todo"
+    "category": "Focus problems"
+  },
+  {
+    "slug": "safari-moved-element-focus",
+    "title": "Safari loses focus when a focused element is moved",
+    "category": "Focus problems"
+  },
+  {
+    "slug": "lifecycle-timing",
+    "title": "tabindex and aria-* changes depend on rendering lifecycle timing",
+    "category": "Focus problems"
   }
 ]

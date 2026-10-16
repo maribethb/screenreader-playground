@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Markup inside list items - Screenreader playground</title>
+  <link rel="stylesheet" href="../../shared/page.css">
+</head>
+<body>
+  <p><a href="../../">All repros</a></p>
+  <h1>Markup inside list items</h1>
+  <p>
+    VoiceOver on macOS has several quirks when it announces lists with other markup inside the list items. Announcements are inconsistent between forward and backward navigation, and there are more stops than expected.
+  </p>
+
+  <h2>Affected</h2>
+  <!-- build:environments -->
+
+  <h2>Steps to reproduce</h2>
+  <ol>
+    <li>
+      Navigate to the list under the "Repro" heading. The list has four items: plain text, a paragraph, a heading and a button.
+    </li>
+    <li>
+      Navigate through the list items one at a time (VO+Right Arrow in VoiceOver, Down Arrow in NVDA and JAWS).
+    </li>
+    <li>
+      Navigate backward through the list items one at a time (VO+Left Arrow in VoiceOver, Up Arrow in NVDA and JAWS).
+    </li>
+    <li>
+      Compare the output of forward vs backward navigation.
+    </li>
+  </ol>
+
+  <h2>Expected output</h2>
+  <p>
+    Navigating through a list of 4 items would take 4 navigation stops, and the announcements would be the same in either direction.
+  </p>
+
+  <h2>Actual output</h2>
+  <p>VoiceOver forward navigation:</p>
+  <ol>
+    <li>Bullet, This is plain text, 1 of 4</li>
+    <li>Bullet, 2 of 4</li>
+    <li>This is a paragraph</li>
+    <li>Bullet, 3 of 4</li>
+    <li>Heading, This is a heading</li>
+    <li>Bullet, 4 of 4</li>
+    <li>Button, This is a button</li>
+  </ol>
+  <p>VoiceOver backward navigation:</p>
+  <ol>
+    <li>Button, This is a button, 4 of 4</li>
+    <li>Bullet</li>
+    <li>Heading, This is a heading, 3 of 4</li>
+    <li>Bullet</li>
+    <li>This is a paragraph, 2 of 4</li>
+    <li>Bullet</li>
+    <li>Bullet, This is plain text, 1 of 4</li>
+  </ol>
+  <p>
+    Whether or not the position in the list is announced depends on the direction of navigation, and stopping on "Bullet" for each item is distracting. You might think you could get around that by hiding the bullets, but that's complicated by <!-- todo: link to new repro --> Safari hiding list semantics from VoiceOver if you hide the list decorations.
+  </p>
+
+  <!-- build:code -->
+
+  <h2>Repro</h2>
+  <div id="repro"><!-- build:repro --></div>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>
+      This isn't a spec problem, just an implementation quirk of VoiceOver.
+    </li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9618">Blockly
+      issue 9618</a> (March 2026): users expected H to move between flyout
+      labels, and it didn't, because flyout labels were not true headings. A comment from
+      micro:bit's user testing says users "do tend to try shortcuts they're
+      used to". Exploring this issue led us to discover this unfortunate VoiceOver quirk.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9874">Blockly
+      pull request 9874</a>: our workaround, which adds Blockly's own H and
+      Shift+H shortcuts to move between labels in the flyout.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/9774">Blockly
+      pull request 9774</a>: added ", heading" to the end of the label's
+      <code>aria-label</code>, with the comment explaining why it couldn't
+      use the heading role.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/9495">Blockly
+      issue 9495</a>: the discussion of the flyout's ARIA structure. It
+      started out proposing <code>role="heading"</code> for labels, and
+      ended up with list items.
+    </li>
+  </ul>
+
+  <!-- build:templates -->
+</body>
+</html>

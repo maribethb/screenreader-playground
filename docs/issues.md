@@ -44,14 +44,6 @@ Follow-up work:
 - [blockly#9524](https://github.com/RaspberryPiFoundation/blockly/pull/9524) tried sending toasts through the shared live region, and was closed without merging.
 - [blockly#9667](https://github.com/RaspberryPiFoundation/blockly/issues/9667) → [blockly#9672](https://github.com/RaspberryPiFoundation/blockly/pull/9672): toasts announced through the shared live region, which is what shipped.
 
-#### `headings-in-lists`: Headings inside list items
-
-- [blockly#9618](https://github.com/RaspberryPiFoundation/blockly/issues/9618): flyout labels are announced as headings, so experienced users pressed H to jump between them and nothing happened. The issue isn't sure whether that's because they aren't real headings or because of `role="application"`.
-- [blockly#9874](https://github.com/RaspberryPiFoundation/blockly/pull/9874) added our own H / Shift+H shortcuts as the workaround.
-- **Caution for the repro:** inside `role="application"`, the screenreader's browse-mode keys (like H) are supposed to go to the page, so H not working there is expected behavior. The repro should test headings in lists *without* `role="application"` first, or we risk blaming lists for something the application role caused.
-- The labels were never real headings. They were `role="listitem"` elements, and [blockly#9774](https://github.com/RaspberryPiFoundation/blockly/pull/9774) added ", heading" to the end of their `aria-label`, with a comment saying the heading role would overwrite the list item role. `role="application"` ([blockly#9747](https://github.com/RaspberryPiFoundation/blockly/pull/9747)) landed about seven weeks after 9618 was filed, so it wasn't the original cause.
-- [blockly#9495](https://github.com/RaspberryPiFoundation/blockly/issues/9495) is the flyout ARIA structure discussion. It started out proposing `role="heading"` for labels, and Ben's comment there says the `application` role overrides "all screen reader interactions".
-
 #### `lifecycle-timing`: `tabindex` and `aria-*` changes depend on rendering lifecycle timing
 
 We found several examples of the "right point in the lifecycle" problem:
@@ -68,6 +60,15 @@ Two things we found back up the "only when focusable" theory, if we ever want to
 
 - [blockly#9449](https://github.com/RaspberryPiFoundation/blockly/pull/9449): Ben found that `presentation`/`none` is ignored when the element has focusable children (the spec's presentational role conflict rules), and switched to `generic` for a while.
 - [blockly#9445](https://github.com/RaspberryPiFoundation/blockly/pull/9445): an element with `role="presentation"`, no other ARIA, and a negative `tabindex` was still read when focused. The browser fell back to a default description ("Graphics Symbol" for a block's path).
+
+### Screenreader quirks
+
+#### `markup-in-lists`: Markup inside list items
+
+- [blockly#9618](https://github.com/RaspberryPiFoundation/blockly/issues/9618): flyout labels are announced as headings, so experienced users pressed H to jump between them and nothing happened. That's where this page started, but it was never a screenreader bug. The labels weren't real headings (see below), and once `role="application"` landed it sent browse-mode keys like H to the page anyway. Real headings inside list items work with H.
+- [blockly#9874](https://github.com/RaspberryPiFoundation/blockly/pull/9874) added our own H / Shift+H shortcuts, so the key does what users expected.
+- The labels were never real headings. They were `role="listitem"` elements, and [blockly#9774](https://github.com/RaspberryPiFoundation/blockly/pull/9774) added ", heading" to the end of their `aria-label`, with a comment saying the heading role would overwrite the list item role. `role="application"` ([blockly#9747](https://github.com/RaspberryPiFoundation/blockly/pull/9747)) landed about seven weeks after 9618 was filed, so it wasn't the original cause.
+- [blockly#9495](https://github.com/RaspberryPiFoundation/blockly/issues/9495) is the flyout ARIA structure discussion. It started out proposing `role="heading"` for labels, and Ben's comment there says the `application` role overrides "all screen reader interactions".
 
 ### VoiceOver
 

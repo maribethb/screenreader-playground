@@ -31,21 +31,21 @@
     "status": "draft"
   },
   {
-    "slug": "headings-in-lists",
-    "title": "Headings inside list items",
-    "category": "ARIA spec issues",
-    "affects": ["VoiceOver on macOS"],
-    "environments": {
-      "VoiceOver": {"Chrome": "affected", "Safari": "affected"}
-    },
-    "status": "verified"
-  },
-  {
     "slug": "lifecycle-timing",
     "title": "tabindex and aria-* changes depend on rendering lifecycle timing",
     "category": "ARIA spec issues",
     "affects": ["TBD"],
     "status": "todo"
+  },
+  {
+    "slug": "markup-in-lists",
+    "title": "Markup inside list items",
+    "category": "Screenreader quirks",
+    "affects": ["VoiceOver on macOS"],
+    "environments": {
+      "VoiceOver": {"Chrome": "affected", "Safari": "affected"}
+    },
+    "status": "verified"
   },
   {
     "slug": "voiceover-group",

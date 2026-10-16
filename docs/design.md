@@ -153,7 +153,7 @@ screenreader-playground/
           debounce.ts
           queue.html
           queue.ts
-      headings-in-lists/
+      markup-in-lists/
         index.html
         variants/
           broken.html    # no .ts, since there's no behavior
@@ -219,14 +219,6 @@ Blockly's notifications were each a new `role="status"` element, added to the pa
 - Variants: `new-region` (broken), `delayed-text` (add the region empty and set the text in a `setTimeout`, which MDN suggests), `existing-region` (Blockly's fix).
 - It came out of the same testing as `live-region-assertive`, and started out on that page. The notifications were always polite, so it's probably a separate bug. If the broken variant turns out to be read fine on its own, the next guess is that the assertive message Blockly set at the same time knocked out the polite notification.
 
-#### `headings-in-lists`
-
-Headings inside list items don't work properly. With VoiceOver on macOS, in Chrome and Safari, H doesn't move to them. Nothing in HTML or ARIA forbids them, and we couldn't find anyone else reporting this.
-
-- Variants: `broken` only. The list has four items (plain text, a paragraph, a heading and a button), so the heading can be compared with the other kinds of content in the same list.
-- Blockly's flyout labels were never real headings. They were list items with ", heading" at the end of their label, because an element can't be a heading and a list item at once. So the repro is really testing whether nesting a real heading inside the list item would have worked. The repro page has the rest of the evidence.
-- Needs investigation: what actually goes wrong. Skipped during heading navigation, missing from the headings list, or something else. It might depend on VoiceOver's group versus DOM navigation setting.
-
 #### `lifecycle-timing`
 
 Changing `tabindex` and some `aria-*` properties has to be done at the right point in the rendering lifecycle, or the change doesn't take effect the way you'd expect.
@@ -237,6 +229,17 @@ Changing `tabindex` and some `aria-*` properties has to be done at the right poi
 #### Skipped: `role="none"` not removing elements from the accessibility tree
 
 Ben thinks this exists. I think it's user error that only applies when the element is focusable, and an element with both a `tabindex` and `role="none"` is a mistake in the first place. We're not making a repro for it.
+
+### Screenreader quirks
+
+#### `markup-in-lists`
+
+VoiceOver on macOS reads lists with other markup inside the items inconsistently. Each item with a paragraph, heading or button in it takes two stops, one for "Bullet" and one for the content, and the position in the list ("2 of 4") is read on the bullet going forward but on the content going back. Nothing in HTML or ARIA forbids the markup, so this is a VoiceOver quirk, not a spec issue.
+
+- Variants: `broken` only. The list has four items (plain text, a paragraph, a heading and a button), so each kind of content can be compared in the same list.
+- This page used to be `headings-in-lists`. It came out of [Blockly issue 9618](https://github.com/RaspberryPiFoundation/blockly/issues/9618), where users pressed H to jump between flyout labels because they were announced as headings. That was never a screenreader bug. The labels were list items with ", heading" at the end of their label, not real headings, and once `role="application"` landed it kept H from the screenreader anyway. Real headings inside list items work with H. These navigation quirks are what turned up while checking.
+- Hiding the bullets to get rid of the extra stops runs into Safari dropping list semantics from lists with `list-style: none`, which should get its own repro.
+- Not sure yet: whether it depends on VoiceOver's group versus DOM navigation setting.
 
 ### VoiceOver
 

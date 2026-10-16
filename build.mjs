@@ -119,8 +119,8 @@ function readVariants(slug) {
   });
 }
 
-function codeBlock(heading, source) {
-  return `<h3>${heading}</h3>\n<pre><code>${escapeHtml(source.trimEnd())}</code></pre>`;
+function codeBlock(level, heading, source) {
+  return `<h${level}>${heading}</h${level}>\n<pre><code>${escapeHtml(source.trimEnd())}</code></pre>`;
 }
 
 function environmentsTable(environments = {}) {
@@ -159,13 +159,14 @@ function buildRepro(entry) {
     }
   }
 
-  // The heading names the variant, so after switching, a screenreader user
-  // can tell which one they're on without finding the variant list.
+  // With variants, the code sits in the panel under the "Variants" heading, so
+  // its headings are a level down.
   const code = variants.map((variant) => {
-    const blocks = [codeBlock('HTML', variant.html)];
-    if (variant.ts) blocks.push(codeBlock('TypeScript', variant.ts));
+    const level = single ? 2 : 3;
+    const blocks = [codeBlock(level + 1, 'HTML', variant.html)];
+    if (variant.ts) blocks.push(codeBlock(level + 1, 'TypeScript', variant.ts));
     if (single) return `<h2>Code</h2>\n${blocks.join('\n')}`;
-    return `<div data-variant-code="${variant.id}" hidden>\n<h2>Code for the ${variant.id} variant</h2>\n${blocks.join('\n')}\n</div>`;
+    return `<div data-variant-code="${variant.id}" hidden>\n<h3>Code</h3>\n${blocks.join('\n')}\n</div>`;
   });
 
   // Repros with one variant get their markup inlined, so it's parser-inserted.

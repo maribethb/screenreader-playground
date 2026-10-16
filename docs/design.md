@@ -85,7 +85,7 @@ Dropping Blockly's code isn't enough on its own, because it's easy to keep Block
 
 So the code, the steps and the expected output should use plain web concepts: elements, items, buttons, lists. "Move element" rather than "move block", "Add item" rather than "insert block from the toolbox", a plain `<div>` or `<ul>` rather than a "workspace". The test is whether a web developer who's never heard of Blockly could read the code block and know what each piece is for.
 
-Blockly can still show up in the prose around the repro. The "Actual output" section and the notes are where we say what we saw in Blockly and how it got there, and that history is part of the evidence. It just shouldn't leak into the repro itself.
+Blockly can still show up in the prose around the repro. The "Actual output" sections and the notes are where we say what we saw in Blockly and how it got there, and that history is part of the evidence. It just shouldn't leak into the repro itself.
 
 ## What a repro page looks like
 
@@ -95,9 +95,9 @@ Every repro page follows the same template:
 2. Which environments are affected: a table of screenreaders against browsers, followed by a paragraph on where those results come from.
 3. Steps to reproduce.
 4. Expected output.
-5. Actual output.
+5. Actual output. On pages with a lot of variants, this is a short summary of which ones work and which don't, and the details go in each variant's panel.
 6. The variant links, styled as tabs. The current variant is marked with `aria-current="page"`.
-7. A panel under the tabs with one or two sentences on what the current variant changes, then its code, as described above. Each description has to make sense on its own, so say "the same as assertive", not "the same".
+7. A panel under the tabs with one or two sentences on what the current variant changes, then, if the page splits it up, what happens with it under an "Actual output" heading, then its code, as described above. Each description and output has to make sense on its own, so say "the same as assertive", not "the same". The headings in the panel don't name the variant, since the current tab already does.
 8. The repro itself, in a container introduced by its own heading so it's easy to jump to.
 9. Notes, including anything we still don't know.
 
@@ -109,6 +109,8 @@ The table is under an "Affected" heading. It has a row for each of VoiceOver, JA
 - N/A: the combination doesn't exist. ChromeVox only runs in Chrome, and JAWS and NVDA only run on Windows, where there's no Safari.
 
 The colors are only there for skimming, since the word says the same thing. A cell is only yes or no if someone tried that screenreader in that browser, with the repro page or in Blockly. Blockly's own testing often didn't record the browser, so those cells stay unknown, and the paragraph under the table says what that testing found.
+
+Splitting the actual output into the panels is for pages where one list covering every variant is hard to follow, like when there are six variants, or each item mixes what we saw on the page with what Blockly's testing found. In the panel, it sits next to the code it describes. The summary stays at the top so a reader can find out which workaround worked without loading every variant. A page with two variants and a sentence about each doesn't need any of this, and keeps a single "Actual output" section.
 
 The code comes before the live repro on purpose. Sighted readers see the innocent-looking markup first and then try it, and screenreader users can jump straight to the repro heading if they'd rather hear it first.
 

@@ -56,19 +56,11 @@
   </p>
 
   <h2>Actual output</h2>
-  <p>In VoiceOver with Chrome:</p>
-  <ul>
-    <li>"Announce only" works.</li>
-    <li>
-      In the assertive, polite and text-first variants, adding an item reads
-      its name and never the message, however many times you add one.
-    </li>
-    <li>
-      In the set-timeout variant, the message is read some of the time. We
-      couldn't find a pattern to it.
-    </li>
-    <li>In the group and div-with-id variants, both are read every time.</li>
-  </ul>
+  <p>
+    In VoiceOver with Chrome, adding an item loses the message in the
+    assertive, polite and text-first variants, and sometimes in set-timeout.
+    group and div-with-id read it every time.
+  </p>
   <p>
     It only happens when the button you press and the new item have no
     container in common that Chrome puts in its accessibility tree, apart
@@ -81,10 +73,7 @@
     Where the live region is doesn't matter. See the notes for how we found
     this, and how sure we are.
   </p>
-  <p>
-    In VoiceOver with Safari, earlier versions of this page read both in the
-    assertive and polite variants. We haven't tried this version in Safari.
-  </p>
+  <p>The details for each variant are in its tab, under "Variants".</p>
 
   <h2 id="variants">Variants</h2>
   <ul class="variant-tabs">
@@ -96,40 +85,87 @@
     <li><a href="?variant=div-with-id#variants">div-with-id</a></li>
   </ul>
   <div class="variant-panel">
-    <p data-variant-description="assertive" hidden>
-      Focus moves to the new item,
-      then an assertive live region changes, in the same click handler. This is
-      the broken version, and what Blockly did when inserting a block from the
-      toolbox.
-    </p>
-    <p data-variant-description="polite" hidden>
-      The same as assertive, with
-      <code>aria-live="polite"</code>. This is what Blockly tried as the
-      workaround, and it's just as broken.
-    </p>
-    <p data-variant-description="text-first" hidden>
-      The same as assertive, but
-      the live region changes just before focus moves, still in the same
-      click handler. The order doesn't matter, it's just as broken.
-    </p>
-    <p data-variant-description="set-timeout" hidden>
-      The same as assertive,
-      but the live region changes in a <code>setTimeout(…, 0)</code>, in a
-      later task than the focus change. We thought this was the workaround,
-      but it only works some of the time.
-    </p>
-    <p data-variant-description="group" hidden>
-      The same as assertive, but the
-      buttons and the list of items are inside a <code>role="group"</code>, so
-      the button you press and the new item share a container. This works
-      every time.
-    </p>
-    <p data-variant-description="div-with-id" hidden>
-      The same as group, but
-      the container is a plain <code>&lt;div&gt;</code> with an
-      <code>id</code>. This also works every time. Without the
-      <code>id</code>, it's lost.
-    </p>
+    <div data-variant-description="assertive" hidden>
+      <p>
+        Focus moves to the new item, then an assertive live region changes,
+        in the same click handler. This is the broken version, and what
+        Blockly did when inserting a block from the toolbox.
+      </p>
+      <h3>Actual output</h3>
+      <p>
+        In VoiceOver with Chrome, "Announce only" works. Adding an item reads
+        its name and never the message, however many times you add one.
+      </p>
+      <p>
+        In VoiceOver with Safari, earlier versions of this page read both.
+        We haven't tried this version in Safari.
+      </p>
+    </div>
+    <div data-variant-description="polite" hidden>
+      <p>
+        The same as assertive, with <code>aria-live="polite"</code>. This is
+        what Blockly tried as the workaround, and it's just as broken.
+      </p>
+      <h3>Actual output</h3>
+      <p>
+        In VoiceOver with Chrome, "Announce only" works. Adding an item reads
+        its name and never the message, however many times you add one.
+      </p>
+      <p>
+        In VoiceOver with Safari, earlier versions of this page read both.
+        We haven't tried this version in Safari.
+      </p>
+    </div>
+    <div data-variant-description="text-first" hidden>
+      <p>
+        The same as assertive, but the live region changes just before focus
+        moves, still in the same click handler. The order doesn't matter,
+        it's just as broken.
+      </p>
+      <h3>Actual output</h3>
+      <p>
+        In VoiceOver with Chrome, "Announce only" works. Adding an item reads
+        its name and never the message, however many times you add one.
+      </p>
+    </div>
+    <div data-variant-description="set-timeout" hidden>
+      <p>
+        The same as assertive, but the live region changes in a
+        <code>setTimeout(…, 0)</code>, in a later task than the focus change.
+        We thought this was the workaround, but it only works some of the
+        time.
+      </p>
+      <h3>Actual output</h3>
+      <p>
+        In VoiceOver with Chrome, "Announce only" works. Adding an item reads
+        its name, and the message some of the time. We couldn't find a
+        pattern to it.
+      </p>
+    </div>
+    <div data-variant-description="group" hidden>
+      <p>
+        The same as assertive, but the buttons and the list of items are
+        inside a <code>role="group"</code>, so the button you press and the
+        new item share a container. This works every time.
+      </p>
+      <h3>Actual output</h3>
+      <p>
+        In VoiceOver with Chrome, "Announce only" works, and adding an item
+        reads both its name and the message every time.
+      </p>
+    </div>
+    <div data-variant-description="div-with-id" hidden>
+      <p>
+        The same as group, but the container is a plain
+        <code>&lt;div&gt;</code> with an <code>id</code>. This also works
+        every time. Without the <code>id</code>, it's lost.
+      </p>
+      <h3>Actual output</h3>
+      <p>
+        In VoiceOver with Chrome, "Announce only" works, and adding an item
+        reads both its name and the message every time.
+      </p>
+    </div>
 
     <!-- build:code -->
   </div>

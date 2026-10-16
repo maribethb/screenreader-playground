@@ -27,6 +27,11 @@ code {
   font-weight: bold;
 }
 
+/* The variant links jump here, so leave some room above the heading. */
+#variants {
+  scroll-margin-top: 1rem;
+}
+
 /*
  * Variant links styled as tabs. They're still links that load a new page, so
  * they don't use the ARIA tab roles, which promise arrow keys and an in-page

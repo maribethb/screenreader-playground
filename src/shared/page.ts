@@ -33,7 +33,7 @@ export function initRepro({defaultVariant, variants}: ReproOptions) {
   }
 
   for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href^="?variant="]')) {
-    if (link.getAttribute('href') === `?variant=${id}`) {
+    if (link.getAttribute('href') === `?variant=${id}#variants`) {
       link.setAttribute('aria-current', 'page');
     }
   }

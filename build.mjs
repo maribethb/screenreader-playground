@@ -136,6 +136,12 @@ function buildRepro(entry) {
     if (linked.join() !== ids.join()) {
       throw new Error(`${file} links to variants [${linked}] but variants/ has [${ids}]`);
     }
+    const described = [...html.matchAll(/data-variant-description="([^"]*)"/g)]
+      .map((match) => match[1])
+      .sort();
+    if (described.join() !== ids.join()) {
+      throw new Error(`${file} describes variants [${described}] but variants/ has [${ids}]`);
+    }
   }
 
   // The heading names the variant, so after switching, a screenreader user

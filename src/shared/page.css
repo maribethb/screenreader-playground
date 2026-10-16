@@ -6,6 +6,8 @@ body {
   max-width: 50rem;
   margin: 0 auto;
   padding: 1rem;
+  background: #fff;
+  color: #000;
 }
 
 pre {
@@ -23,6 +25,49 @@ code {
 
 [aria-current] {
   font-weight: bold;
+}
+
+/*
+ * Variant links styled as tabs. They're still links that load a new page, so
+ * they don't use the ARIA tab roles, which promise arrow keys and an in-page
+ * panel. The current one has aria-current="page".
+ */
+.variant-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0 0.5rem;
+  border-bottom: 1px solid #666;
+}
+
+.variant-tabs a {
+  display: block;
+  margin-bottom: -1px;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #ccc;
+  border-bottom-color: #666;
+  border-radius: 0.25rem 0.25rem 0 0;
+  background: #f4f4f4;
+  color: inherit;
+  text-decoration: none;
+}
+
+.variant-tabs a:hover {
+  text-decoration: underline;
+}
+
+.variant-tabs a[aria-current] {
+  border-color: #666;
+  border-bottom-color: #fff;
+  background: #fff;
+}
+
+.variant-panel {
+  border: 1px solid #666;
+  border-top: none;
+  padding: 0 1rem;
 }
 
 #repro {

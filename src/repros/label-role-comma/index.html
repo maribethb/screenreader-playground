@@ -42,16 +42,20 @@
   </p>
 
   <h2>Variants</h2>
-  <ul>
-    <li>
-      <a href="?variant=no-comma">no-comma</a>: the label ends without punctuation. This is the broken version.
-    </li>
-    <li>
-      <a href="?variant=trailing-comma">trailing-comma</a>: the label ends with a comma, so NVDA pauses too. This is the workaround Blockly uses, on non-Apple devices only.
-    </li>
+  <ul class="variant-tabs">
+    <li><a href="?variant=no-comma">no-comma</a></li>
+    <li><a href="?variant=trailing-comma">trailing-comma</a></li>
   </ul>
+  <div class="variant-panel">
+    <p data-variant-description="no-comma" hidden>
+      The label ends without punctuation. This is the broken version.
+    </p>
+    <p data-variant-description="trailing-comma" hidden>
+      The label ends with a comma, so NVDA pauses too. This is the workaround Blockly uses, on non-Apple devices only.
+    </p>
 
-  <!-- build:code -->
+    <!-- build:code -->
+  </div>
 
   <h2>Repro</h2>
   <div id="repro"><!-- build:repro --></div>

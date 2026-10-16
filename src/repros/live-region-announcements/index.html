@@ -114,36 +114,44 @@
   </ul>
 
   <h2>Variants</h2>
-  <ul>
-    <li>
-      <a href="?variant=naive">naive</a>: sets the live region's text to the
+  <ul class="variant-tabs">
+    <li><a href="?variant=naive">naive</a></li>
+    <li><a href="?variant=new-element">new-element</a></li>
+    <li><a href="?variant=two-regions">two-regions</a></li>
+    <li><a href="?variant=one-region">one-region</a></li>
+    <li><a href="?variant=debounce">debounce</a></li>
+    <li><a href="?variant=append">append</a></li>
+  </ul>
+  <div class="variant-panel">
+    <p data-variant-description="naive" hidden>
+      Sets the live region's text to the
       message. This is the broken version.
-    </li>
-    <li>
-      <a href="?variant=new-element">new-element</a>: adds a brand new live
+    </p>
+    <p data-variant-description="new-element" hidden>
+      Adds a brand new live
       region for every message and sets its text a moment later.
-    </li>
-    <li>
-      <a href="?variant=two-regions">two-regions</a>: one live region for
+    </p>
+    <p data-variant-description="two-regions" hidden>
+      One live region for
       status messages and one for tips. If a message is the same as that
       region's last one, it gets a non-breaking space on the end.
-    </li>
-    <li>
-      <a href="?variant=one-region">one-region</a>: the same, but with a
+    </p>
+    <p data-variant-description="one-region" hidden>
+      The same as two-regions, but with a
       single live region for both kinds of message.
-    </li>
-    <li>
-      <a href="?variant=debounce">debounce</a>: one live region. Every other
+    </p>
+    <p data-variant-description="debounce" hidden>
+      One live region. Every other
       message gets a non-breaking space, and messages are collected for 10
       milliseconds and then added to the region together.
-    </li>
-    <li>
-      <a href="?variant=append">append</a>: adds each message to the live
+    </p>
+    <p data-variant-description="append" hidden>
+      Adds each message to the live
       region as a new paragraph and never removes the old ones.
-    </li>
-  </ul>
+    </p>
 
-  <!-- build:code -->
+    <!-- build:code -->
+  </div>
 
   <h2>Repro</h2>
   <div id="repro"><!-- build:repro --></div>

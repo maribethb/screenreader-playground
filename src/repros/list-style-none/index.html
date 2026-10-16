@@ -39,16 +39,20 @@
   </p>
 
   <h2>Variants</h2>
-  <ul>
-    <li>
-      <a href="?variant=list-style-none">list-style-none</a>: the second list has <code>list-style: none</code>. This is the broken version.
-    </li>
-    <li>
-      <a href="?variant=role-list">role-list</a>: the same, with <code>role="list"</code> on the second list. This is the workaround.
-    </li>
+  <ul class="variant-tabs">
+    <li><a href="?variant=list-style-none">list-style-none</a></li>
+    <li><a href="?variant=role-list">role-list</a></li>
   </ul>
+  <div class="variant-panel">
+    <p data-variant-description="list-style-none" hidden>
+      The second list has <code>list-style: none</code>. This is the broken version.
+    </p>
+    <p data-variant-description="role-list" hidden>
+      The same as list-style-none, with <code>role="list"</code> on the second list. This is the workaround.
+    </p>
 
-  <!-- build:code -->
+    <!-- build:code -->
+  </div>
 
   <h2>Repro</h2>
   <div id="repro"><!-- build:repro --></div>

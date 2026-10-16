@@ -82,18 +82,22 @@
   </ul>
 
   <h2>Variants</h2>
-  <ul>
-    <li>
-      <a href="?variant=assertive">assertive</a>: the live region has
-      <code>aria-live="assertive"</code>. This is the broken version.
-    </li>
-    <li>
-      <a href="?variant=polite">polite</a>: the same, with
-      <code>aria-live="polite"</code>. This is our workaround.
-    </li>
+  <ul class="variant-tabs">
+    <li><a href="?variant=assertive">assertive</a></li>
+    <li><a href="?variant=polite">polite</a></li>
   </ul>
+  <div class="variant-panel">
+    <p data-variant-description="assertive" hidden>
+      The live region has
+      <code>aria-live="assertive"</code>. This is the broken version.
+    </p>
+    <p data-variant-description="polite" hidden>
+      The same as assertive, with
+      <code>aria-live="polite"</code>. This is our workaround.
+    </p>
 
-  <!-- build:code -->
+    <!-- build:code -->
+  </div>
 
   <h2>Repro</h2>
   <div id="repro"><!-- build:repro --></div>

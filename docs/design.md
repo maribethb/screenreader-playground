@@ -45,7 +45,7 @@ Most repros have more than one version to show: the broken one, then whatever we
 
 Variants have the same contamination problem as repros, just on a smaller scale. Two live regions on the same page will happily talk over each other, which is one of the bugs we're trying to demonstrate. So only one variant exists in the DOM at a time.
 
-Each repro page has a plain list of links to its variants, using a query parameter: `?variant=naive`, `?variant=debounce`, `?variant=queue`. Clicking one reloads the page. On load, the page's script reads the parameter, clones the matching `<template>` into the repro container, and runs that variant's `setup` function. With no parameter, the page shows the broken variant.
+Each repro page has a list of links to its variants, using a query parameter: `?variant=naive`, `?variant=debounce`, `?variant=queue`. They're styled as tabs, but they're still plain links, and clicking one reloads the page. They don't use the ARIA `tablist` and `tab` roles, because those promise arrow key navigation and a panel that switches in place, which isn't what happens. On load, the page's script reads the parameter, clones the matching `<template>` into the repro container, and runs that variant's `setup` function. With no parameter, the page shows the broken variant.
 
 One thing to be aware of is that template cloning means the repro markup is inserted by script rather than by the HTML parser. My intuition is that this doesn't matter for anything on our list, because it all happens before the reader interacts with the page. But some of these bugs are about the rendering lifecycle, so it's not impossible. If we find a bug that only reproduces with parser-inserted markup, that repro's variants get their own HTML files instead. Repros with only one variant have their markup inlined directly into the page and skip the template.
 
@@ -96,8 +96,8 @@ Every repro page follows the same template:
 3. Steps to reproduce.
 4. Expected output.
 5. Actual output.
-6. The list of variant links, each with one or two sentences on what that variant changes. The current variant is marked with `aria-current="page"`.
-7. The code for the current variant, as described above.
+6. The variant links, styled as tabs. The current variant is marked with `aria-current="page"`.
+7. A panel under the tabs with one or two sentences on what the current variant changes, then its code, as described above. Each description has to make sense on its own, so say "the same as assertive", not "the same".
 8. The repro itself, in a container introduced by its own heading so it's easy to jump to.
 9. Notes, including anything we still don't know.
 

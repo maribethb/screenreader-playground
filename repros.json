@@ -3,6 +3,7 @@
     "slug": "live-region-assertive",
     "title": "Assertive live region announcements are ignored",
     "category": "Live region issues",
+    "unpublished": true,
     "environments": {
       "ChromeVox": {"Chrome": "not affected"}
     }

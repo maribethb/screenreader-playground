@@ -217,8 +217,13 @@ function buildIndex(manifest) {
 }
 
 /** Everything that isn't esbuild's job. */
+/** Entries marked `unpublished` stay in the repo but aren't on the site. */
+function readPublished() {
+  return readManifest().filter((entry) => !entry.unpublished);
+}
+
 function buildPages() {
-  const manifest = readManifest();
+  const manifest = readPublished();
   fs.mkdirSync(OUT, {recursive: true});
   fs.cpSync(path.join(SRC, 'shared', 'page.css'), path.join(OUT, 'shared', 'page.css'));
   for (const entry of manifest) {
@@ -228,7 +233,8 @@ function buildPages() {
 }
 
 const esbuildOptions = {
-  entryPoints: reproSlugs()
+  entryPoints: readPublished()
+    .map((entry) => entry.slug)
     .filter((slug) => fs.existsSync(path.join(REPROS, slug, 'main.ts')))
     .map((slug) => ({in: path.join(REPROS, slug, 'main.ts'), out: `repros/${slug}/main`})),
   outdir: OUT,

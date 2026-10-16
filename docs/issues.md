@@ -11,7 +11,7 @@ Links use `blockly#1234` for [RaspberryPiFoundation/blockly](https://github.com/
 - [blockly#9436](https://github.com/RaspberryPiFoundation/blockly/pull/9436) made the live region assertive, because move mode announcements seemed like they should interrupt.
 - [blockly#9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460) is the cross-screenreader review that found the problem. **The user agent was VoiceOver.** With `assertive`, VoiceOver dropped the move mode announcement whenever a focus change also caused a block label to be read. With `polite` it was read after the block label. The working guess in the thread is that VoiceOver starts the assertive message and then the focus readout interrupts it.
 - [blockly#9632](https://github.com/RaspberryPiFoundation/blockly/issues/9632) records the decision to default to `polite`.
-- This page is historical context now. The bug turned out to be browser-specific and not about assertive, see `live-region-during-focus-change` below.
+- This page is historical context now, and it's `unpublished`, so it isn't on the site. The bug turned out to be browser-specific and not about assertive, see `live-region-during-focus-change` below.
 
 ### `live-region-announcements`: Repeated and overlapping live region announcements
 

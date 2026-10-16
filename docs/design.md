@@ -186,7 +186,7 @@ screenreader-playground/
 
 `environments` fills in the table on the repro page, as `"affected"`, `"not affected"` or `"unknown"`. Anything it leaves out is unknown, and the build fills in N/A and fails if a result is given for an N/A combination. Repros without a page don't have a table, so what we think they affect lives in [issues.md](issues.md) instead.
 
-Repros with a page are links on the index, and the rest are plain text.
+Repros with a page are links on the index, and the rest are plain text. `"unpublished": true` keeps a repro off the site completely, page and index entry both, without deleting it from the repo.
 
 ## Repro catalogue
 
@@ -200,7 +200,7 @@ None of the entries below are specs. They're a record of what we know right now,
 
 At least one user agent refused to read assertive announcements, so we had to use `aria-live="polite"` even though assertive seemed more correct per the spec.
 
-This is historical context now. The bug turned out to be Chrome losing live region messages set in the same task as a focus change, assertive or polite, and that's `live-region-during-focus-change`. What to do with this page is still undecided.
+This is historical context now. The bug turned out to be Chrome losing live region messages set in the same task as a focus change, assertive or polite, and that's `live-region-during-focus-change`. For now the page is `unpublished`, so it's in the repo but not on the site.
 
 - Variants: `assertive` (broken), `polite` (our workaround).
 - It was VoiceOver on macOS, according to micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460). The assertive announcement was lost when focus moved at the same time. Starting a move on an already focused block only lost it some of the time, and we never reproduced that outside Blockly, so the repro copies inserting from the toolbox, which lost it more reliably: hide the list that has focus, focus a new element, then set the text. The repro page has the rest of the evidence.
@@ -210,7 +210,7 @@ This is historical context now. The bug turned out to be Chrome losing live regi
 Repeated and overlapping live region messages. Saying the same message twice in a row didn't behave well, so we added a debounce. We then ended up writing our own message queue. Even with the queue, there's no way to stop live region announcements from overlapping with the screenreader's own automatic output, like reading the newly focused element.
 
 - Variants: `naive` (broken), then the five approaches from micro:bit's testing in [Blockly issue 9460](https://github.com/RaspberryPiFoundation/blockly/issues/9460#issuecomment-3502962801): `new-element`, `two-regions`, `one-region`, `debounce` and `append`.
-- The page is about repeated messages. Two of the approaches only differ when two messages arrive at once, so there's a button for that too, but polite versus assertive is left to `live-region-assertive`.
+- The page is about repeated messages. Two of the approaches only differ when two messages arrive at once, so there's a button for that too, but polite versus assertive is left to `live-region-during-focus-change`.
 - Up for debate, but it might be worth splitting the overlap with automatic output into its own repro, since none of the variants fix it and that's kind of the point.
 
 #### `live-region-added-with-text`

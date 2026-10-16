@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screenreaders disagree about pausing between the label and the role - Screenreader playground</title>
+  <link rel="stylesheet" href="../../shared/page.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <p><a href="../../">All repros</a></p>
+  <h1>Screenreaders disagree about pausing between the label and the role</h1>
+  <p>
+    Screenreaders don't agree on whether to put a comma between an element's label and its role. VoiceOver adds one. NVDA doesn't, so the end of the label runs straight into the role. You can't write one label that reads well in both.
+  </p>
+
+  <h2>Affected</h2>
+  <p>
+    "Yes" means the screenreader adds its own comma between the label and the role.
+  </p>
+  <!-- build:environments -->
+
+  <h2>Steps to reproduce</h2>
+  <ol>
+    <li>Press Tab to move focus to the element under the "Repro" heading.</li>
+    <li>Listen to how the label and the role are joined.</li>
+  </ol>
+
+  <h2>Expected output</h2>
+  <p>
+    Every screenreader joins the label and the role the same way, so the same label works everywhere.
+  </p>
+
+  <h2>Actual output</h2>
+  <p>With the no-comma variant:</p>
+  <ul>
+    <li>VoiceOver: "Lunch plans, from Sam, has attachment, email"</li>
+    <li>NVDA: "Lunch plans, from Sam, has attachment email"</li>
+  </ul>
+  <p>
+    NVDA's version sounds like the item has an email attached.
+  </p>
+
+  <h2>Variants</h2>
+  <ul>
+    <li>
+      <a href="?variant=no-comma">no-comma</a>: the label ends without punctuation. This is the broken version.
+    </li>
+    <li>
+      <a href="?variant=trailing-comma">trailing-comma</a>: the label ends with a comma, so NVDA pauses too. This is the workaround Blockly uses, on non-Apple devices only.
+    </li>
+  </ul>
+
+  <!-- build:code -->
+
+  <h2>Repro</h2>
+  <div id="repro"><!-- build:repro --></div>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>
+      This isn't a spec problem. Nothing says how a screenreader should join the label and the role, and both behaviors are reasonable on their own. Maybe the spec should pick one, so that screenreaders are consistent. Either choice would be fine, as long as they all make the same one.
+    </li>
+    <li>
+      A page can't tell which screenreader is running. If you only want the comma for NVDA, the closest you can get is leaving it out on Apple devices, since that's the only place VoiceOver runs.
+    </li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/issues/10185">Blockly
+      issue 10185</a> (July 2026): block labels no longer ended in a comma, so
+      NVDA ran the label into the role and VoiceOver didn't.
+    </li>
+    <li>
+      <a href="https://github.com/RaspberryPiFoundation/blockly/pull/10279">Blockly
+      pull request 10279</a> (August 2026): the workaround, which adds a
+      trailing comma to labels except on Apple devices.
+    </li>
+    <li>
+      <a href="https://github.com/nvaccess/nvda/blob/7da11e834986581798692ebc91baec58d3a59817/source/speech/speech.py#L169-L172">NVDA's
+      <code>speech.py</code></a>: NVDA joins separate pieces of speech, like
+      the label and the role, with two spaces. The comment says that's for
+      chunks that "should be spoken without pauses".
+    </li>
+    <li>
+      <a href="https://github.com/microsoft/vscode/issues/96046">VS Code issue
+      96046</a> (2020): VS Code switched to commas between the parts of its
+      <code>aria-label</code>s, because Apple's platforms use commas there and
+      screenreaders slow down at them.
+    </li>
+    <li>
+      <a href="https://accessibility.blog.gov.uk/2017/12/18/what-working-on-gov-uk-navigation-taught-us-about-accessibility/">What
+      working on GOV.UK navigation taught us about accessibility</a> (GOV.UK,
+      2017): of the punctuation they tried for a hidden pause, the comma
+      paused in every screenreader they tested.
+    </li>
+  </ul>
+
+  <!-- build:templates -->
+</body>
+</html>

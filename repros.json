@@ -38,6 +38,17 @@
     "status": "todo"
   },
   {
+    "slug": "label-role-comma",
+    "title": "Screenreaders disagree about pausing between the label and the role",
+    "category": "Screenreader quirks",
+    "affects": ["VoiceOver", "NVDA"],
+    "environments": {
+      "VoiceOver": {"Chrome": "affected", "Safari": "affected", "Firefox": "affected"},
+      "NVDA": {"Chrome": "not affected", "Firefox": "not affected"}
+    },
+    "status": "verified"
+  },
+  {
     "slug": "markup-in-lists",
     "title": "Markup inside list items",
     "category": "Screenreader quirks",

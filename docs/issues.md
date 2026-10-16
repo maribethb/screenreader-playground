@@ -63,6 +63,16 @@ Two things we found back up the "only when focusable" theory, if we ever want to
 
 ### Screenreader quirks
 
+#### `label-role-comma`: Screenreaders disagree about pausing between the label and the role
+
+- [blockly#10185](https://github.com/RaspberryPiFoundation/blockly/issues/10185) → [blockly#10279](https://github.com/RaspberryPiFoundation/blockly/pull/10279): VoiceOver adds its own comma between `aria-label` and `aria-roledescription`. NVDA doesn't (and the issue guesses JAWS doesn't either), so the label runs straight into the role ("has input statement"). The fix adds a trailing comma everywhere except Apple devices. This is a good concrete example of the article's "no real way to influence the prosody" point.
+
+Related prosody issues that are smaller, and mostly our own fault:
+
+- [blockly#9906](https://github.com/RaspberryPiFoundation/blockly/issues/9906) → [blockly#9926](https://github.com/RaspberryPiFoundation/blockly/pull/9926): "⌘ Command" was read as "command Command".
+- [kbx#793](https://github.com/RaspberryPiFoundation/blockly-keyboard-experimentation/issues/793): the shortcuts table was read as "E-S-C" and "enter slash space".
+- [blockly#9801](https://github.com/RaspberryPiFoundation/blockly/issues/9801): VoiceOver ignored newlines between coalesced live region messages.
+
 #### `markup-in-lists`: Markup inside list items
 
 - [blockly#9618](https://github.com/RaspberryPiFoundation/blockly/issues/9618): flyout labels are announced as headings, so experienced users pressed H to jump between them and nothing happened. That's where this page started, but it was never a screenreader bug. The labels weren't real headings (see below), and once `role="application"` landed it sent browse-mode keys like H to the page anyway. Real headings inside list items work with H.
@@ -177,16 +187,6 @@ The connections case is a nice trap: fixing one VoiceOver bug (no readout on fir
 ### Popups outside the region cause region exit/enter announcements
 
 [blockly#9451](https://github.com/RaspberryPiFoundation/blockly/issues/9451) and [blockly#9798](https://github.com/RaspberryPiFoundation/blockly/issues/9798): dropdown menus and text editors are appended outside the workspace in the DOM (very common for popups). Opening and closing one counts as leaving and re-entering the region, so screenreaders announce "region end" and then the region label again. Lots of web apps would hit this, so it's probably a good one for the article. It might be the same setup as `voiceover-region-announcements`.
-
-### Labels need different punctuation on Apple
-
-[blockly#10185](https://github.com/RaspberryPiFoundation/blockly/issues/10185) → [blockly#10279](https://github.com/RaspberryPiFoundation/blockly/pull/10279): VoiceOver adds its own pause (a comma) between `aria-label` and `aria-roledescription`. NVDA and JAWS don't, so the label runs straight into the role ("has input statement"). The fix adds a trailing comma everywhere except Apple devices. This is a good concrete example of the article's "no real way to influence the prosody" point.
-
-Related prosody issues that are smaller, and mostly our own fault:
-
-- [blockly#9906](https://github.com/RaspberryPiFoundation/blockly/issues/9906) → [blockly#9926](https://github.com/RaspberryPiFoundation/blockly/pull/9926): "⌘ Command" was read as "command Command".
-- [kbx#793](https://github.com/RaspberryPiFoundation/blockly-keyboard-experimentation/issues/793): the shortcuts table was read as "E-S-C" and "enter slash space".
-- [blockly#9801](https://github.com/RaspberryPiFoundation/blockly/issues/9801): VoiceOver ignored newlines between coalesced live region messages.
 
 ### Same markup, four different readouts
 

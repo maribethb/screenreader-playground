@@ -232,6 +232,15 @@ Ben thinks this exists. I think it's user error that only applies when the eleme
 
 ### Screenreader quirks
 
+#### `label-role-comma`
+
+Screenreaders don't agree on whether to put a comma between an element's label and its role. VoiceOver adds one. NVDA joins them with no pause, so a label ending in "has input" followed by the role "statement" is heard as "has input statement". Nothing in the spec says which is right, and either would be fine if they were consistent.
+
+- Variants: `no-comma` (broken) and `trailing-comma` (Blockly's fix). Neither has behavior, so there are no `.ts` files.
+- The example uses `aria-roledescription` so the end of the label and the role can read as one phrase ("has attachment email"). VoiceOver pauses before native roles too ("Save, button"), but with those the run-on version rarely sounds wrong.
+- Blockly's fix ([blockly#10279](https://github.com/RaspberryPiFoundation/blockly/pull/10279)) adds the comma everywhere except Apple devices, since a page can't detect the screenreader.
+- Not sure yet: what JAWS and ChromeVox do.
+
 #### `markup-in-lists`
 
 VoiceOver on macOS reads lists with other markup inside the items inconsistently. Each item with a paragraph, heading or button in it takes two stops, one for "Bullet" and one for the content, and the position in the list ("2 of 4") is read on the bullet going forward but on the content going back. Nothing in HTML or ARIA forbids the markup, so this is a VoiceOver quirk, not a spec issue.

@@ -62,28 +62,33 @@
     <li>The delayed-text and existing-region variants read every notification.</li>
   </ul>
 
-  <h2>Variants</h2>
-  <ul>
-    <li>
-      <a href="?variant=new-region">new-region</a>: each notification is a new
+  <h2 id="variants">Variants</h2>
+  <ul class="variant-tabs">
+    <li><a href="?variant=new-region#variants">new-region</a></li>
+    <li><a href="?variant=delayed-text#variants">delayed-text</a></li>
+    <li><a href="?variant=existing-region#variants">existing-region</a></li>
+  </ul>
+  <div class="variant-panel">
+    <p data-variant-description="new-region" hidden>
+      Each notification is a new
       <code>role="status"</code> element, added to the page with its text
       already in it. This is the broken version, and what Blockly did when it
       was tested.
-    </li>
-    <li>
-      <a href="?variant=delayed-text">delayed-text</a>: the same, but the
+    </p>
+    <p data-variant-description="delayed-text" hidden>
+      The same as new-region, but the
       element goes in empty and the text is added in a
       <code>setTimeout(…, 0)</code>. This is what MDN suggests when a region
       has to be added on the fly, and what the Blockly testers tried first.
-    </li>
-    <li>
-      <a href="?variant=existing-region">existing-region</a>: there's one
+    </p>
+    <p data-variant-description="existing-region" hidden>
+      There's one
       <code>role="status"</code> element in the page from the start, and each
       notification changes its text. This is what Blockly does now.
-    </li>
-  </ul>
+    </p>
 
-  <!-- build:code -->
+    <!-- build:code -->
+  </div>
 
   <h2>Repro</h2>
   <div id="repro"><!-- build:repro --></div>

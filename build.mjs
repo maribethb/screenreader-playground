@@ -146,10 +146,16 @@ function buildRepro(entry) {
 
   let html = fs.readFileSync(file, 'utf8');
   if (!single) {
-    const linked = [...html.matchAll(/href="\?variant=([^"]*)"/g)].map((match) => match[1]).sort();
+    const linked = [...html.matchAll(/href="\?variant=([^"#]*)#variants"/g)].map((match) => match[1]).sort();
     const ids = variants.map((variant) => variant.id);
     if (linked.join() !== ids.join()) {
       throw new Error(`${file} links to variants [${linked}] but variants/ has [${ids}]`);
+    }
+    const described = [...html.matchAll(/data-variant-description="([^"]*)"/g)]
+      .map((match) => match[1])
+      .sort();
+    if (described.join() !== ids.join()) {
+      throw new Error(`${file} describes variants [${described}] but variants/ has [${ids}]`);
     }
   }
 

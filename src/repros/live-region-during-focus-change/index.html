@@ -86,45 +86,53 @@
     assertive and polite variants. We haven't tried this version in Safari.
   </p>
 
-  <h2>Variants</h2>
-  <ul>
-    <li>
-      <a href="?variant=assertive">assertive</a>: focus moves to the new item,
+  <h2 id="variants">Variants</h2>
+  <ul class="variant-tabs">
+    <li><a href="?variant=assertive#variants">assertive</a></li>
+    <li><a href="?variant=polite#variants">polite</a></li>
+    <li><a href="?variant=text-first#variants">text-first</a></li>
+    <li><a href="?variant=set-timeout#variants">set-timeout</a></li>
+    <li><a href="?variant=group#variants">group</a></li>
+    <li><a href="?variant=div-with-id#variants">div-with-id</a></li>
+  </ul>
+  <div class="variant-panel">
+    <p data-variant-description="assertive" hidden>
+      Focus moves to the new item,
       then an assertive live region changes, in the same click handler. This is
       the broken version, and what Blockly did when inserting a block from the
       toolbox.
-    </li>
-    <li>
-      <a href="?variant=polite">polite</a>: the same, with
+    </p>
+    <p data-variant-description="polite" hidden>
+      The same as assertive, with
       <code>aria-live="polite"</code>. This is what Blockly tried as the
       workaround, and it's just as broken.
-    </li>
-    <li>
-      <a href="?variant=text-first">text-first</a>: the same as assertive, but
+    </p>
+    <p data-variant-description="text-first" hidden>
+      The same as assertive, but
       the live region changes just before focus moves, still in the same
       click handler. The order doesn't matter, it's just as broken.
-    </li>
-    <li>
-      <a href="?variant=set-timeout">set-timeout</a>: the same as assertive,
+    </p>
+    <p data-variant-description="set-timeout" hidden>
+      The same as assertive,
       but the live region changes in a <code>setTimeout(…, 0)</code>, in a
       later task than the focus change. We thought this was the workaround,
       but it only works some of the time.
-    </li>
-    <li>
-      <a href="?variant=group">group</a>: the same as assertive, but the
+    </p>
+    <p data-variant-description="group" hidden>
+      The same as assertive, but the
       buttons and the list of items are inside a <code>role="group"</code>, so
       the button you press and the new item share a container. This works
       every time.
-    </li>
-    <li>
-      <a href="?variant=div-with-id">div-with-id</a>: the same as group, but
+    </p>
+    <p data-variant-description="div-with-id" hidden>
+      The same as group, but
       the container is a plain <code>&lt;div&gt;</code> with an
       <code>id</code>. This also works every time. Without the
       <code>id</code>, it's lost.
-    </li>
-  </ul>
+    </p>
 
-  <!-- build:code -->
+    <!-- build:code -->
+  </div>
 
   <h2>Repro</h2>
   <!-- role="none" stops Chrome exposing #repro to VoiceOver. As a container

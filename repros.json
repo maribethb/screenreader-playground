@@ -59,6 +59,19 @@
     "status": "verified"
   },
   {
+    "slug": "list-style-none",
+    "title": "Safari drops list semantics when the bullets are hidden",
+    "category": "VoiceOver",
+    "affects": ["VoiceOver with Safari"],
+    "environments": {
+      "VoiceOver": {"Chrome": "not affected", "Safari": "affected", "Firefox": "not affected"},
+      "JAWS": {"Chrome": "not affected", "Firefox": "not affected"},
+      "NVDA": {"Chrome": "not affected", "Firefox": "not affected"},
+      "ChromeVox": {"Chrome": "not affected"}
+    },
+    "status": "verified"
+  },
+  {
     "slug": "voiceover-group",
     "title": "VoiceOver says \"group\" a lot",
     "category": "VoiceOver",

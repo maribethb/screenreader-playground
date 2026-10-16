@@ -247,10 +247,17 @@ VoiceOver on macOS reads lists with other markup inside the items inconsistently
 
 - Variants: `broken` only. The list has four items (plain text, a paragraph, a heading and a button), so each kind of content can be compared in the same list.
 - This page used to be `headings-in-lists`. It came out of [Blockly issue 9618](https://github.com/RaspberryPiFoundation/blockly/issues/9618), where users pressed H to jump between flyout labels because they were announced as headings. That was never a screenreader bug. The labels were list items with ", heading" at the end of their label, not real headings, and once `role="application"` landed it kept H from the screenreader anyway. Real headings inside list items work with H. These navigation quirks are what turned up while checking.
-- Hiding the bullets to get rid of the extra stops runs into Safari dropping list semantics from lists with `list-style: none`, which should get its own repro.
+- Hiding the bullets to get rid of the extra stops runs into Safari dropping list semantics from lists with `list-style: none`. That's `list-style-none`.
 - Not sure yet: whether it depends on VoiceOver's group versus DOM navigation setting.
 
 ### VoiceOver
+
+#### `list-style-none`
+
+If a list's bullets are hidden with `list-style: none`, Safari stops exposing it to VoiceOver as a list. Adding `role="list"` brings the semantics back. Other browsers and screenreaders aren't affected.
+
+- Variants: `list-style-none` (broken), `role-list` (the workaround). Each has a list with bullets above the one without, to compare.
+- We didn't hit this in Blockly, whose flyout was an SVG group with explicit list roles. It came up as the obvious way to hide the extra "Bullet" stops in `markup-in-lists`.
 
 #### `voiceover-group`
 

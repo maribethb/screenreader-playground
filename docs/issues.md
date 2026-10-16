@@ -82,6 +82,11 @@ Related prosody issues that are smaller, and mostly our own fault:
 
 ### VoiceOver
 
+#### `list-style-none`: Safari drops list semantics when the bullets are hidden
+
+- Nothing in either repo mentions it. We searched issues and PRs in both for `list-style`, `role="list"`, bullets and Safari lists, and checked the flyout list PRs ([blockly#9528](https://github.com/RaspberryPiFoundation/blockly/pull/9528), [blockly#9774](https://github.com/RaspberryPiFoundation/blockly/pull/9774), [blockly#10059](https://github.com/RaspberryPiFoundation/blockly/pull/10059)). The flyout was always an SVG group with `role="list"` set explicitly, so there were no bullets to hide.
+- It came up while working on `markup-in-lists`, as the obvious way to get rid of VoiceOver's "Bullet" stops.
+
 #### `voiceover-group`: VoiceOver says "group" a lot
 
 - [blockly#9449](https://github.com/RaspberryPiFoundation/blockly/pull/9449): switching hidden containers from `presentation` to `generic` seemed to reduce "group" in the workspace, but flyout items still said "group". The only thing that stopped it was adding an `aria-roledescription`. There's also a comment that VoiceOver users online describe "group" as a quirk they've learned to live with.

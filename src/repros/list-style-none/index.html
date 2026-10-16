@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Safari drops list semantics when the bullets are hidden - Screenreader playground</title>
+  <link rel="stylesheet" href="../../shared/page.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <p><a href="../../">All repros</a></p>
+  <h1>Safari drops list semantics when the bullets are hidden</h1>
+  <p>
+    If you hide a list's bullets with <code>list-style: none</code>, Safari stops telling VoiceOver it's a list. Adding <code>role="list"</code> back to the list fixes it.
+  </p>
+
+  <h2>Affected</h2>
+  <!-- build:environments -->
+
+  <h2>Steps to reproduce</h2>
+  <ol>
+    <li>
+      Navigate to the lists under the "Repro" heading. The first list has bullets, and the second doesn't.
+    </li>
+    <li>
+      Navigate through the items of both lists one at a time (VO+Right Arrow in VoiceOver, Down Arrow in NVDA and JAWS).
+    </li>
+    <li>Repeat with the other variant.</li>
+  </ol>
+
+  <h2>Expected output</h2>
+  <p>
+    Both lists are announced as lists of 3 items, and each item is read with its position, like "1 of 3". Hiding the bullets is a visual change and shouldn't change what the screenreader says.
+  </p>
+
+  <h2>Actual output</h2>
+  <p>
+    With VoiceOver in Safari, the first list is announced as a list, but the second isn't, and its items are read without their position. With <code>role="list"</code>, both lists are announced the same way.
+  </p>
+
+  <h2>Variants</h2>
+  <ul>
+    <li>
+      <a href="?variant=list-style-none">list-style-none</a>: the second list has <code>list-style: none</code>. This is the broken version.
+    </li>
+    <li>
+      <a href="?variant=role-list">role-list</a>: the same, with <code>role="list"</code> on the second list. This is the workaround.
+    </li>
+  </ul>
+
+  <!-- build:code -->
+
+  <h2>Repro</h2>
+  <div id="repro"><!-- build:repro --></div>
+
+  <h2>Sources</h2>
+  <ul>
+    <li>
+      <a href="https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html">"Fixing" Lists</a>, Scott O'Hara (January 2019).
+    </li>
+  </ul>
+
+  <!-- build:templates -->
+</body>
+</html>

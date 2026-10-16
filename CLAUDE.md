@@ -11,7 +11,7 @@ Minimal reproductions of screenreader problems we ran into while making Blockly 
 
 ## Git
 
-This repo has no remote. "Merge to main" means merging into the local `main` branch, and there's nothing to push to, so don't offer to push or open a PR.
+The repo is public on GitHub at [`maribethb/screenreader-playground`](https://github.com/maribethb/screenreader-playground), with `origin` pointing there. "Merge to main" means merging into the local `main` branch. Don't push or open a PR unless asked.
 
 ## Researching where an issue came from
 
